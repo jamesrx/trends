@@ -6,11 +6,11 @@ class Room extends React.Component {
   }
 
   componentDidMount = () => {
-    this.props.socket.on('room.leaveRoom', (rooms, leaderLeft) => {
+    this.props.socket.on('room.leaveRoom', (leaderLeft) => {
       if (leaderLeft) {
+        // kick everyone out of the room if the leader leaves
         this.props.updateGameState({room: ''});
       }
-      this.props.updateRooms(rooms);
     });
 
     this.props.socket.on('room.startGame', () => {

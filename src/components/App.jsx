@@ -1,5 +1,6 @@
 import React from 'react';
 import StartScreen from './StartScreen';
+import Username from './Username';
 import AnswerScreen from './AnswerScreen';
 import ResultScreen from './ResultScreen';
 import EndScreen from './EndScreen';
@@ -11,7 +12,7 @@ class App extends React.Component {
     super(props);
 
     this.state = {
-      screen: 'START',
+      screen: '',
       username: '',
       room: '',
       isLeader: false,
@@ -21,6 +22,7 @@ class App extends React.Component {
       totalScore: {},
       // rooms: {
       //   'roomname': {
+      //     hasStarted: false,
       //     password: '',
       //     leader: 'leaderName',
       //     players: ['playerName'],
@@ -28,11 +30,13 @@ class App extends React.Component {
       // },
       // rounds: [{
       //   'username1': {
-      //     term: 'full term',
+      //     term: 'term',
+      //     fullTerm: 'full term',
       //     points: 10
       //   },
       //   'username2': {
-      //     term: 'full term',
+      //     term: 'term',
+      //     fullTerm: 'full term',
       //     points: 20
       //   },
       // }],
@@ -66,7 +70,8 @@ class App extends React.Component {
   }
 
   componentDidMount = () => {
-    this.socket.emit('playerConnected', );
+    this.socket.emit('playerConnected');
+    this.socket.on('all.updateRooms', this.updateRooms);
   }
 
   updateGameState = (state, callback) => {
@@ -103,6 +108,14 @@ class App extends React.Component {
 
     switch (screen) {
       default:
+        nextScreen =
+          <Username
+            state={this.state}
+            socket={this.socket}
+            updateGameState={this.updateGameState}
+          />
+        break;
+
       case 'START':
         nextScreen =
           <StartScreen

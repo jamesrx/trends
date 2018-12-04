@@ -15,26 +15,77 @@ app.use(function (req, res, next) {
 
 app.use(express.static(__dirname + '/server'));
 
+const checkForDuplicates = (term, round) => {
+  let duplicate = false;
+
+  // blank terms can't be duplicates
+  if (term !== '') {
+    Object.keys(round).forEach((player) => {
+      if (term === round[player].term && term !== '') {
+        duplicate = true;
+      }
+    });
+  }
+
+  return duplicate;
+}
+
+const isValidName = (name, max = 20, min = 3) => {
+  name = name.trim();
+  const isValid = name.length >= min && name.length <= max;
+  return isValid;
+}
+
 const rooms = {};
+const players = {};
 
 io.on('connection', (socket) => {
+  // socket.on('disconnect', (reason) => {
+  //   console.log(socket.id, reason);
+  // });
 
   /*****************
    * START SCREEN *
   *****************/
 
-  io.emit('all.connected', rooms);
+  io.emit('all.updateRooms', rooms);
 
-  socket.on('createRoom', ({ username, newRoomName, newRoomPassword }) => {
-    socket.join(newRoomName, () => {
-      rooms[newRoomName] = {
+  socket.on('submitUsername', (username) => {
+    if (players[username]) {
+      socket.emit('player.duplicateUsername');
+      return;
+    }
+    if (!isValidName(username)) {
+      socket.emit('player.invalidUsername');
+      return;
+    }
+
+    players[username] = username;
+    socket.emit('player.acceptedUsername');
+  });
+
+  socket.on('createRoom', (username, roomName, password) => {
+    socket.join(roomName, () => {
+      if (rooms[roomName]) {
+        socket.emit('player.duplicateRoomName');
+        return;
+      }
+
+      if (!isValidName(roomName)) {
+        socket.emit('player.invalidRoomName');
+        return
+      }
+
+      rooms[roomName] = {
+        hasStarted: false,
         leader: username,
-        password: newRoomPassword,
+        password,
         players: [username],
         rounds: [],
       };
 
-      io.emit('all.createRoom', rooms);
+      io.emit('all.updateRooms', rooms);
+      socket.emit('player.acceptedRoomName');
     });
   });
 
@@ -47,21 +98,26 @@ io.on('connection', (socket) => {
   });
 
   socket.on('leaveRoom', (roomName, username) => {
-    const currentRoom = rooms[roomName];
-    const playerIndex = currentRoom.players.indexOf(username);
-    const isLeader = (currentRoom.leader === username);
+    socket.leave(roomName, () => {
+      const currentRoom = rooms[roomName];
+      const playerIndex = currentRoom.players.indexOf(username);
+      const isLeader = (currentRoom.leader === username);
+  
+      currentRoom.players.splice(playerIndex, 1); // remove player
 
-    currentRoom.players.splice(playerIndex, 1); // remove player
+      if (isLeader) {
+        delete rooms[roomName];
+      }
 
-    if (isLeader) {
-      delete rooms[roomName];
-    }
-
-    io.to(roomName).emit('room.leaveRoom', rooms, isLeader);
+      io.to(roomName).emit('room.leaveRoom', isLeader);
+      io.emit('all.updateRooms', rooms);
+    });
   });
 
   socket.on('startGame', (roomName) => {
+    rooms[roomName].hasStarted = true;
     io.to(roomName).emit('room.startGame');
+    io.emit('all.updateRooms', rooms);
   });
 
   /******************
@@ -77,18 +133,18 @@ io.on('connection', (socket) => {
         [username]: { term, fullTerm }
       };
 
-      io.to(socket.id).emit('player.acceptedAnswer');
+      socket.emit('player.acceptedAnswer');
 
       return;
     }
 
     // all subsequent answers for the round
     if (checkForDuplicates(term, round)) {
-      io.to(socket.id).emit('player.duplicateAnswer');
+      socket.emit('player.duplicateAnswer');
       return;
     }
 
-    io.to(socket.id).emit('player.acceptedAnswer');
+    socket.emit('player.acceptedAnswer');
     round[username] = { term, fullTerm };
     const players = Object.keys(round);
 
@@ -122,21 +178,6 @@ io.on('connection', (socket) => {
 
 });
 
-function checkForDuplicates(term, round) {
-  let duplicate = false;
-
-  // blank terms can't be duplicates
-  if (term !== '') {
-    Object.keys(round).forEach((player) => {
-      if (term === round[player].term && term !== '') {
-        duplicate = true;
-      }
-    });
-  }
-
-  return duplicate;
-}
-
 const getTrendForTerms = (terms, callback) => {
   googleTrends.interestOverTime({
     keyword: terms
@@ -152,27 +193,11 @@ const getTrendForTerms = (terms, callback) => {
   });
 }
 
-
-
-
-
-
 app.get('/trends', function (req, res) {
   const terms = req.query.terms.split(',');
 
-  googleTrends.interestOverTime({
-    keyword: terms
-  })
-    .then(function (data) {
-      res.setHeader('Content-Type', 'application/json');
-      const results = JSON.parse(data).default.timelineData;
-      const latestResult = results.length
-        ? results[results.length - 1].value
-        : new Array(terms.length).fill(0); // if no terms have any point value an empty array gets returned, so fill it with 0's
-
-      res.send(latestResult);
-    })
-    .catch(function (err) {
-      console.error('Oh no there was an error', err);
-    });
+  getTrendForTerms(terms, (latestResult) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(latestResult);
+  });
 })

@@ -5,21 +5,37 @@ class Lobby extends React.Component {
     super(props);
 
     this.state = {
-      username: '',
       newRoomName: '',
       newRoomPassword: '',
-      joinRoomPassword: {}
+      joinRoomPassword: {},
+      duplicateRoomName: false,
+      invalidRoomName: true,
     };
   }
 
   componentDidMount = () => {
-    this.props.socket.on('all.connected', this.props.updateRooms);
-    this.props.socket.on('all.createRoom', this.props.updateRooms);
     this.props.socket.on('room.joinRoom', this.props.updateRooms);
+
+    this.props.socket.on('player.duplicateRoomName', () => {
+      this.setState({ duplicateRoomName: true });
+    });
+
+    this.props.socket.on('player.invalidRoomName', () => {
+      this.setState({ invalidRoomName: true });
+    });
+
+    this.props.socket.on('player.acceptedRoomName', () => {
+      this.props.updateGameState({
+        room: this.state.newRoomName,
+        isLeader: true,
+      });
+    });
   }
 
   joinLobby = () => {
-    this.props.updateGameState({username: this.state.username});
+    console.log('join');
+    this.setState({ submittedUsername: true });
+    this.props.socket.emit('joinLobby', this.state.newUsername);
   }
 
   joinRoom = (event) => {
@@ -35,16 +51,28 @@ class Lobby extends React.Component {
   }
 
   createRoom = () => {
-    this.props.updateGameState({
-      room: this.state.newRoomName,
-      isLeader: true,
-    });
-
-    this.props.socket.emit('createRoom', this.state);
+    this.props.socket.emit(
+      'createRoom',
+      this.props.state.username,
+      this.state.newRoomName,
+      this.state.newRoomPassword
+    );
   }
 
   onTextFieldChange = (event) => {
     this.setState({[event.target.dataset.key]: event.target.value})
+  }
+
+  onNewRoomNameChange = (event) => {
+    const newRoomName = event.target.value;
+    const trimmedNewRoomName = newRoomName.trim();
+    let invalidRoomName = trimmedNewRoomName.length < 3 || trimmedNewRoomName.length > 20;
+
+    this.setState({
+      newRoomName,
+      invalidRoomName,
+      duplicateRoomName: false
+    });
   }
 
   onRoomPasswordChange = (event) => {
@@ -56,38 +84,39 @@ class Lobby extends React.Component {
   }
 
   render() {
-    const nameField = (
-      <div>
-        Enter your name: <input type="text" value={this.state.username} data-key="username" onChange={this.onTextFieldChange} />
-        <button type="button" onClick={this.joinLobby}>Connect</button>
-      </div>
-    );
+    const roomList = Object.keys(this.props.state.rooms);
 
-    const lobby = (
+    return (
       <div>
         <div>Welcome to the game lobby <b>{this.props.state.username}</b>!</div>
-        <h3>Join a room:</h3>
-        <ul>
-          {
-            Object.keys(this.props.state.rooms).map((room) => (
-              <li key={room}>
-                {room}
-                {this.props.state.rooms[room].password ? <input type="password" value={this.state.joinRoomPassword[room]} data-room={room} onChange={this.onRoomPasswordChange} /> : ''}
-                <button type="button" value={room} data-password={this.state.joinRoomPassword[room]} onClick={this.joinRoom}>Join</button>
-              </li>
-            ))
-          }
-        </ul>
+        {roomList.length > 0 && roomList.some(room => !this.props.state.rooms[room].hasStarted)
+          ? <div>
+            <h3>Join a game:</h3>
+            <ul>
+              {
+                roomList.map((room) => (
+                  !this.props.state.rooms[room].hasStarted &&
+                  <li key={room}>
+                    {room}
+                    {this.props.state.rooms[room].password ? <input type="password" value={this.state.joinRoomPassword[room]} data-room={room} onChange={this.onRoomPasswordChange} /> : ''}
+                    <button type="button" value={room} data-password={this.state.joinRoomPassword[room]} onClick={this.joinRoom}>Join</button>
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+          : <h3>No games currently open</h3>
+        }
         <div>
-          <h3>Or start one:</h3>
-          Name: <input type="text" value={this.state.newRoomName} data-key="newRoomName" onChange={this.onTextFieldChange} /><br />
+          <h3>Start a room:</h3>
+          Name: <input type="text" value={this.state.newRoomName} onChange={this.onNewRoomNameChange} /><br />
           Password: <input type="password" value={this.state.newRoomPassword} data-key="newRoomPassword" onChange={this.onTextFieldChange} /> (Optional)<br />
-          <button type="button" onClick={this.createRoom}>Create</button>
+          <button disabled={this.state.invalidRoomName || this.state.duplicateRoomName ? 'disabled' : ''} type="button" onClick={this.createRoom}>Create</button>
+          {this.state.invalidRoomName && <div>Enter a room name between 3-20 characters</div>}
+          {this.state.duplicateRoomName && <div>That room name's already in use</div>}
         </div>
       </div>
     );
-
-    return this.props.state.username ? lobby : nameField;
   }
 }
 
