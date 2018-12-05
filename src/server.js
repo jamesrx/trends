@@ -40,9 +40,51 @@ const rooms = {};
 const players = {};
 
 io.on('connection', (socket) => {
-  // socket.on('disconnect', (reason) => {
-  //   console.log(socket.id, reason);
-  // });
+  socket.on('disconnect', () => {
+    // console.log(socket.id, reason);
+    const roomList = Object.keys(rooms);
+    let foundPlayer = false;
+
+    for (let i = 0; i < roomList.length; i++) {
+      const roomName = roomList[i];
+      const room = rooms[roomName];
+      const playerList = room.players;
+
+      for (let j = 0; j < playerList.length; j++) {
+        const player = playerList[j];
+
+        if (player.socketId === socket.id) {
+          if (room.leader === player.username) {
+            // player the disconnected was leader, so delete the room
+            delete rooms[roomName];
+            io.to(roomName).emit('room.leaderLeft');
+            io.emit('all.updateRooms', rooms);
+          } else {
+            // remove player from room
+            playerList.splice(j, 1);
+          }
+
+          // remove from players map
+          delete players[player.username];
+          foundPlayer = true;
+          break;
+        }
+      }
+
+      if (foundPlayer) {
+        break;
+      }
+    }
+
+    if (!foundPlayer) {
+      // look up and delete player if they weren't in a room
+      const player = Object.keys(players).find((player) => {
+        return players[player] === socket.id;
+      });
+
+      delete players[player];
+    }
+  });
 
   /*****************
    * START SCREEN *
@@ -55,12 +97,13 @@ io.on('connection', (socket) => {
       socket.emit('player.duplicateUsername');
       return;
     }
+
     if (!isValidName(username)) {
       socket.emit('player.invalidUsername');
       return;
     }
 
-    players[username] = username;
+    players[username] = socket.id;
     socket.emit('player.acceptedUsername');
   });
 
@@ -80,7 +123,10 @@ io.on('connection', (socket) => {
         hasStarted: false,
         leader: username,
         password,
-        players: [username],
+        players: [{
+          socketId: socket.id,
+          username
+        }],
         rounds: [],
       };
 
@@ -91,7 +137,10 @@ io.on('connection', (socket) => {
 
   socket.on('joinRoom', (roomName, username) => {
     socket.join(roomName, () => {
-      rooms[roomName].players.push(username);
+      rooms[roomName].players.push({
+        socketId: socket.id,
+        username
+      });
 
       io.to(roomName).emit('room.joinRoom', rooms);
     });
@@ -100,7 +149,7 @@ io.on('connection', (socket) => {
   socket.on('leaveRoom', (roomName, username) => {
     socket.leave(roomName, () => {
       const currentRoom = rooms[roomName];
-      const playerIndex = currentRoom.players.indexOf(username);
+      const playerIndex = currentRoom.players.findIndex(player => player.username === username);
       const isLeader = (currentRoom.leader === username);
   
       currentRoom.players.splice(playerIndex, 1); // remove player
@@ -109,7 +158,7 @@ io.on('connection', (socket) => {
         delete rooms[roomName];
       }
 
-      io.to(roomName).emit('room.leaveRoom', isLeader);
+      io.to(roomName).emit('room.leaderLeft');
       io.emit('all.updateRooms', rooms);
     });
   });
@@ -125,6 +174,7 @@ io.on('connection', (socket) => {
   ******************/
 
   socket.on('submitAnswer', (term, fullTerm, username, roundNum, numPlayersInRoom, roomName) => {
+    console.log('numPlayersInRoom', numPlayersInRoom);
     const round = rooms[roomName].rounds[roundNum];
 
     if(!round) {

@@ -59,8 +59,8 @@ class Lobby extends React.Component {
     );
   }
 
-  onTextFieldChange = (event) => {
-    this.setState({[event.target.dataset.key]: event.target.value})
+  onNewRoomPasswordChange = (event) => {
+    this.setState({ newRoomPassword: event.target.value });
   }
 
   onNewRoomNameChange = (event) => {
@@ -75,7 +75,7 @@ class Lobby extends React.Component {
     });
   }
 
-  onRoomPasswordChange = (event) => {
+  onJoinRoomPasswordChange = (event) => {
     this.setState({
       joinRoomPassword: {
         [event.target.dataset.room]: event.target.value
@@ -98,7 +98,7 @@ class Lobby extends React.Component {
                   !this.props.state.rooms[room].hasStarted &&
                   <li key={room}>
                     {room}
-                    {this.props.state.rooms[room].password ? <input type="password" value={this.state.joinRoomPassword[room]} data-room={room} onChange={this.onRoomPasswordChange} /> : ''}
+                    {this.props.state.rooms[room].password ? <input type="password" value={this.state.joinRoomPassword[room]} data-room={room} onChange={this.onJoinRoomPasswordChange} /> : ''}
                     <button type="button" value={room} data-password={this.state.joinRoomPassword[room]} onClick={this.joinRoom}>Join</button>
                   </li>
                 ))
@@ -110,7 +110,7 @@ class Lobby extends React.Component {
         <div>
           <h3>Start a room:</h3>
           Name: <input type="text" value={this.state.newRoomName} onChange={this.onNewRoomNameChange} /><br />
-          Password: <input type="password" value={this.state.newRoomPassword} data-key="newRoomPassword" onChange={this.onTextFieldChange} /> (Optional)<br />
+          Password: <input type="password" value={this.state.newRoomPassword} onChange={this.onNewRoomPasswordChange} /> (Optional)<br />
           <button disabled={this.state.invalidRoomName || this.state.duplicateRoomName ? 'disabled' : ''} type="button" onClick={this.createRoom}>Create</button>
           {this.state.invalidRoomName && <div>Enter a room name between 3-20 characters</div>}
           {this.state.duplicateRoomName && <div>That room name's already in use</div>}

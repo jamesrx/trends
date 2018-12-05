@@ -6,11 +6,9 @@ class Room extends React.Component {
   }
 
   componentDidMount = () => {
-    this.props.socket.on('room.leaveRoom', (leaderLeft) => {
-      if (leaderLeft) {
-        // kick everyone out of the room if the leader leaves
-        this.props.updateGameState({room: ''});
-      }
+    this.props.socket.on('room.leaderLeft', () => {
+      // kick everyone out of the room if the leader leaves
+      this.props.updateGameState({room: ''});
     });
 
     this.props.socket.on('room.startGame', () => {
@@ -42,7 +40,7 @@ class Room extends React.Component {
         <ul>
           {
             playersInRoom.map((player) => (
-              <li key={player}>{player}</li>
+              <li key={player.socketId}>{player.username}</li>
             ))
           }
         </ul>

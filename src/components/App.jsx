@@ -20,26 +20,31 @@ class App extends React.Component {
       rounds: [],
       topic: '',
       totalScore: {},
-      // rooms: {
-      //   'roomname': {
-      //     hasStarted: false,
-      //     password: '',
-      //     leader: 'leaderName',
-      //     players: ['playerName'],
-      //   },
-      // },
-      // rounds: [{
-      //   'username1': {
-      //     term: 'term',
-      //     fullTerm: 'full term',
-      //     points: 10
-      //   },
-      //   'username2': {
-      //     term: 'term',
-      //     fullTerm: 'full term',
-      //     points: 20
-      //   },
-      // }],
+      /*
+      rooms: {
+        'roomname': {
+          hasStarted: false,
+          password: '',
+          leader: 'leaderName',
+          players: [{
+            socketId: 'abc123',
+            username: 'username1',
+          }],
+        },
+      },
+      rounds: [{
+        'username1': {
+          term: 'term',
+          fullTerm: 'full term',
+          points: 10
+        },
+        'username2': {
+          term: 'term',
+          fullTerm: 'full term',
+          points: 20
+        },
+      }],
+      */
     }
 
     // this.socket = io.connect('https://simplistic-chatter.glitch.me/');
