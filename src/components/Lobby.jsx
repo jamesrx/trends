@@ -30,12 +30,6 @@ class Lobby extends React.Component {
     });
   }
 
-  joinLobby = () => {
-    console.log('join');
-    this.setState({ submittedUsername: true });
-    this.props.socket.emit('joinLobby', this.state.newUsername);
-  }
-
   joinRoom = (event) => {
     const roomNameToJoin = event.target.value;
     const enteredPassword = event.target.dataset.password || '';

@@ -21,7 +21,10 @@ class Room extends React.Component {
   }
 
   leaveRoom = () => {
-    this.props.updateGameState({room: ''});
+    this.props.updateGameState({
+      room: '',
+      isLeader: false, // will always no longer be leader after leaving a room
+    });
     this.props.socket.emit('leaveRoom', this.props.state.room, this.props.state.username);
   }
 
