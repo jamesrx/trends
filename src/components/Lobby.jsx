@@ -14,8 +14,6 @@ class Lobby extends React.Component {
   }
 
   componentDidMount = () => {
-    this.props.socket.on('room.joinRoom', this.props.updateRooms);
-
     this.props.socket.on('player.duplicateRoomName', () => {
       this.setState({ duplicateRoomName: true });
     });
@@ -99,7 +97,7 @@ class Lobby extends React.Component {
                   <li key={room}>
                     {room}
                     {this.props.state.rooms[room].password ? <input type="password" value={this.state.joinRoomPassword[room]} data-room={room} onChange={this.onJoinRoomPasswordChange} /> : ''}
-                    <button type="button" value={room} data-password={this.state.joinRoomPassword[room]} onClick={this.joinRoom}>Join</button>
+                    {(this.props.state.rooms[room].players.length < 5) && <button type="button" value={room} data-password={this.state.joinRoomPassword[room]} onClick={this.joinRoom}>Join</button>}
                   </li>
                 ))
               }

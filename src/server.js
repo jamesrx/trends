@@ -142,7 +142,7 @@ io.on('connection', (socket) => {
         username
       });
 
-      io.to(roomName).emit('room.joinRoom', rooms);
+      io.emit('all.updateRooms', rooms);
     });
   });
 
@@ -156,9 +156,9 @@ io.on('connection', (socket) => {
 
       if (isLeader) {
         delete rooms[roomName];
+        io.to(roomName).emit('room.leaderLeft');
       }
 
-      io.to(roomName).emit('room.leaderLeft');
       io.emit('all.updateRooms', rooms);
     });
   });
@@ -174,7 +174,6 @@ io.on('connection', (socket) => {
   ******************/
 
   socket.on('submitAnswer', (term, fullTerm, username, roundNum, numPlayersInRoom, roomName) => {
-    console.log('numPlayersInRoom', numPlayersInRoom);
     const round = rooms[roomName].rounds[roundNum];
 
     if(!round) {
