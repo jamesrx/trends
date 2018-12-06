@@ -1,6 +1,6 @@
 const utils = require('./Utils');
 
-exports.createRoom = (rooms, username, roomName, password, socket, io) => {
+exports.createRoom = (rooms, socket, io, username, roomName, password) => {
   socket.join(roomName, () => {
     if (rooms[roomName]) {
       socket.emit('player.duplicateRoomName');
@@ -28,7 +28,7 @@ exports.createRoom = (rooms, username, roomName, password, socket, io) => {
   });
 };
 
-exports.joinRoom = (rooms, roomName, username, socket, io) => {
+exports.joinRoom = (rooms, socket, io, roomName, username) => {
   socket.join(roomName, () => {
     rooms[roomName].players.push({
       socketId: socket.id,

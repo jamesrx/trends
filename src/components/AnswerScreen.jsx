@@ -17,8 +17,9 @@ class AnswerScreen extends React.Component {
   }
 
   componentDidMount = () => {
-    this.props.socket.on('room.submitAnswer', (rounds) => {
+    this.props.socket.on('room.submitAnswer', (rounds, fullResults) => {
       // all players' answers are in
+      this.props.setFullResults(fullResults);
       this.props.updateGameState({
         screen: 'RESULT',
         rounds,

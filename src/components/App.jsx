@@ -50,6 +50,7 @@ class App extends React.Component {
     // this.socket = io.connect('https://simplistic-chatter.glitch.me/');
     this.socket = io.connect('http://localhost:3000');
     this.numRounds = 0,
+    this.fullResults = [],
     this.topics = { // TODO: add banned words per keyword? i.e: trump: {'Donald, 'President'}
       'Politics': [
         'Trump',
@@ -89,6 +90,10 @@ class App extends React.Component {
 
   setNumRounds = (numRounds) => {
     this.numRounds = numRounds;
+  }
+
+  setFullResults = (fullResults) => {
+    this.fullResults = fullResults;
   }
 
   updateTotalScore = () => {
@@ -142,6 +147,7 @@ class App extends React.Component {
             updateTotalScore={this.updateTotalScore}
             topics={this.topics}
             numRounds={this.numRounds}
+            setFullResults={this.setFullResults}
           />
         break;
       
@@ -152,6 +158,7 @@ class App extends React.Component {
             socket={this.socket}
             updateGameState={this.updateGameState}
             numRounds={this.numRounds}
+            fullResults={this.fullResults}
           />
         break;
 

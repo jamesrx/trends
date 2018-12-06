@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
+const googleTrends = require('google-trends-api');
 const Username = require('./server/Username');
 const Lobby = require('./server/Lobby');
 const Room = require('./server/Room');
@@ -58,7 +59,7 @@ io.on('connection', (socket) => {
             // remove player from room
             playerList.splice(j, 1);
           }
-          
+
           io.emit('all.updateRooms', rooms);
 
           // remove from players map
@@ -88,34 +89,32 @@ io.on('connection', (socket) => {
   *****************/
 
   // Username
-  socket.on('submitUsername', (username) => {
-    Username.submitUsername(rooms, players, username, socket, io);
+  socket.on('submitUsername', (...args) => {
+    Username.submitUsername(rooms, socket, io, players, ...args);
   });
 
   // Lobby
-  socket.on('createRoom', (username, roomName, password) => {
-    Lobby.createRoom(rooms, username, roomName, password, socket, io);
+  socket.on('createRoom', (...args) => {
+    Lobby.createRoom(rooms, socket, io, ...args);
   });
-
-  socket.on('joinRoom', (roomName, username) => {
-    Lobby.joinRoom(rooms, roomName, username, socket, io);
+  socket.on('joinRoom', (...args) => {
+    Lobby.joinRoom(rooms, socket, io, ...args);
   });
 
   // Room
-  socket.on('leaveRoom', (roomName, username) => {
-    Room.leaveRoom(rooms, roomName, username, socket, io)
+  socket.on('leaveRoom', (...args) => {
+    Room.leaveRoom(rooms, socket, io, ...args)
   });
-
-  socket.on('startGame', (roomName) => {
-    Room.startGame(rooms, roomName, io);
+  socket.on('startGame', (...args) => {
+    Room.startGame(rooms, io, ...args);
   });
 
   /******************
    * ANSWER SCREEN *
   ******************/
 
-  socket.on('submitAnswer', (term, fullTerm, username, roundNum, numPlayersInRoom, roomName) => {
-    Answer.submitAnswer(rooms, term, fullTerm, username, roundNum, numPlayersInRoom, roomName, socket, io);
+  socket.on('submitAnswer', (...args) => {
+    Answer.submitAnswer(rooms, socket, io, ...args);
   });
 
   /*******************

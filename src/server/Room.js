@@ -1,4 +1,4 @@
-exports.leaveRoom = (rooms, roomName, username, socket, io) => {
+exports.leaveRoom = (rooms, socket, io, roomName, username) => {
   socket.leave(roomName, () => {
     const currentRoom = rooms[roomName];
     const playerIndex = currentRoom.players.findIndex(player => player.username === username);
@@ -15,7 +15,7 @@ exports.leaveRoom = (rooms, roomName, username, socket, io) => {
   });
 };
 
-exports.startGame = (rooms, roomName, io) => {
+exports.startGame = (rooms, io, roomName) => {
   rooms[roomName].hasStarted = true;
   io.to(roomName).emit('room.startGame');
   io.emit('all.updateRooms', rooms);

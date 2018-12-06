@@ -4,18 +4,33 @@ const getPointsForTerms = (terms, callback) => {
   googleTrends.interestOverTime({
     keyword: terms
   }).then(function (data) {
-    const results = JSON.parse(data).default.timelineData;
-    const latestResult = results.length
-      ? results[results.length - 1].value
+    const fullResults = JSON.parse(data).default.timelineData;
+    const latestResult = fullResults.length
+      ? fullResults[fullResults.length - 1].value
       : new Array(terms.length).fill(0); // if no terms have any point value an empty array gets returned, so fill it with 0's
 
-    callback(latestResult);
+    callback(latestResult, fullResults);
   }).catch(function (err) {
     console.error('Error with interestOverTime call', err);
   });
 }
 
-exports.submitAnswer = (rooms, term, fullTerm, username, roundNum, numPlayersInRoom, roomName, socket, io) => {
+const isTermDuplicate = (term, round) => {
+  let duplicate = false;
+
+  // allow blank terms to be duplicates
+  if (term !== '') {
+    Object.keys(round).forEach((player) => {
+      if (term === round[player].term && term !== '') {
+        duplicate = true;
+      }
+    });
+  }
+
+  return duplicate;
+}
+
+exports.submitAnswer = (rooms, socket, io, term, fullTerm, username, roundNum, numPlayersInRoom, roomName) => {
   const round = rooms[roomName].rounds[roundNum];
 
   if(!round) {
@@ -25,12 +40,11 @@ exports.submitAnswer = (rooms, term, fullTerm, username, roundNum, numPlayersInR
     };
 
     socket.emit('player.acceptedAnswer');
-
     return;
   }
 
   // all subsequent answers for the round
-  if (checkDuplicateAnswers(term, round)) {
+  if (isTermDuplicate(term, round)) {
     socket.emit('player.duplicateAnswer');
     return;
   }
@@ -47,14 +61,14 @@ exports.submitAnswer = (rooms, term, fullTerm, username, roundNum, numPlayersInR
       round[player].term === '' ? placeholderTerm : round[player].fullTerm
     ));
 
-    getPointsForTerms(terms, (latestResult) => {
+    getPointsForTerms(terms, (latestResult, fullResults) => {
       players.forEach((player) => {
         const indexOfTerm = terms.indexOf(round[player].fullTerm || placeholderTerm);
         const points = latestResult[indexOfTerm];
         round[player].points = points;
       });
 
-      io.to(roomName).emit('room.submitAnswer', rooms[roomName].rounds);
+      io.to(roomName).emit('room.submitAnswer', rooms[roomName].rounds, fullResults);
     });
   }
 };

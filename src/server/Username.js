@@ -1,6 +1,6 @@
 const utils = require('./Utils');
 
-exports.submitUsername = (rooms, players, username, socket, io) => {
+exports.submitUsername = (rooms, socket, io, players, username) => {
   if (players[username]) {
     socket.emit('player.duplicateUsername');
     return;
