@@ -1,9 +1,11 @@
 import React from 'react';
-import StartScreen from './StartScreen';
-import Username from './Username';
-import AnswerScreen from './AnswerScreen';
-import ResultScreen from './ResultScreen';
-import EndScreen from './EndScreen';
+import screens from '../screenTypes';
+import StartScreen from './screens/StartScreen';
+import LobbyScreen from './screens/LobbyScreen';
+import RoomScreen from './screens/RoomScreen';
+import AnswerScreen from './screens/AnswerScreen';
+import ResultScreen from './screens/ResultScreen';
+import EndScreen from './screens/EndScreen';
 import Scoreboard from './Scoreboard';
 import io from 'socket.io-client';
 
@@ -12,7 +14,7 @@ class App extends React.Component {
     super(props);
 
     this.state = {
-      screen: '',
+      screen: screens.START,
       username: '',
       room: '',
       isLeader: false,
@@ -82,6 +84,7 @@ class App extends React.Component {
 
   updateGameState = (state, callback) => {
     this.setState(state, callback);
+    console.log(this.state);
   }
 
   updateRooms = (rooms) => {
@@ -96,7 +99,7 @@ class App extends React.Component {
     this.fullResults = fullResults;
   }
 
-  updateTotalScore = () => {
+  setTotalScore = () => {
     this.setState((prevState) => {
       const newTotal = {}
 
@@ -114,55 +117,58 @@ class App extends React.Component {
   }
 
   screenSelector = (screen) => {
+    const defaultProps = {
+      state: this.state,
+      socket: this.socket,
+      updateGameState: this.updateGameState,
+    };
     let nextScreen;
 
     switch (screen) {
       default:
-        nextScreen =
-          <Username
-            state={this.state}
-            socket={this.socket}
-            updateGameState={this.updateGameState}
-          />
-        break;
-
-      case 'START':
+      case screens.START:
         nextScreen =
           <StartScreen
-            state={this.state}
-            socket={this.socket}
-            updateGameState={this.updateGameState}
-            updateRooms={this.updateRooms}
+            {...defaultProps}
+          />;
+        break;
+
+      case screens.LOBBY:
+        nextScreen =
+          <LobbyScreen
+            {...defaultProps}
+          />;
+        break;
+
+      case screens.ROOM:
+        nextScreen =
+          <RoomScreen
+            {...defaultProps}
             setNumRounds={this.setNumRounds}
           />;
         break;
 
-      case 'ANSWER':
+      case screens.ANSWER:
         nextScreen =
           <AnswerScreen
-            state={this.state}
-            socket={this.socket}
-            updateGameState={this.updateGameState}
-            updateRooms={this.updateRooms}
-            updateTotalScore={this.updateTotalScore}
+            {...defaultProps}
+            setTotalScore={this.setTotalScore}
             topics={this.topics}
             numRounds={this.numRounds}
             setFullResults={this.setFullResults}
           />
         break;
       
-      case 'RESULT':
+      case screens.RESULT:
         nextScreen =
           <ResultScreen
-            state={this.state}
-            socket={this.socket}
-            updateGameState={this.updateGameState}
+            {...defaultProps}
             numRounds={this.numRounds}
             fullResults={this.fullResults}
           />
         break;
 
-        case 'END':
+        case screens.END:
         nextScreen =
           <EndScreen
             totalScore={this.state.totalScore}
@@ -181,6 +187,8 @@ class App extends React.Component {
         {
           Object.keys(this.state.totalScore).length > 0 &&
           <Scoreboard
+            rooms={this.state.rooms}
+            room={this.state.room}
             totalScore={this.state.totalScore}
           />
         }

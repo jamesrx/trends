@@ -1,7 +1,8 @@
 import React from 'react';
-import style from '../styles/Username.scss';
+import style from '../../styles/StartScreen.scss';
+import screens from '../../screenTypes';
 
-class Username extends React.Component {
+class StartScreen extends React.Component {
   constructor(props) {
     super(props);
 
@@ -23,7 +24,7 @@ class Username extends React.Component {
 
     this.props.socket.on('player.acceptedUsername', () => {
       this.props.updateGameState({
-        screen: 'START',
+        screen: screens.LOBBY,
         username: this.state.username
       });
     });
@@ -57,4 +58,4 @@ class Username extends React.Component {
   }
 }
 
-export default Username;
+export default StartScreen;

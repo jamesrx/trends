@@ -1,6 +1,7 @@
 import React from 'react';
+import screens from '../../screenTypes';
 
-class Lobby extends React.Component {
+class LobbyScreen extends React.Component {
   constructor(props) {
     super(props);
 
@@ -24,6 +25,7 @@ class Lobby extends React.Component {
 
     this.props.socket.on('player.acceptedRoomName', () => {
       this.props.updateGameState({
+        screen: screens.ROOM,
         room: this.state.newRoomName,
         isLeader: true,
       });
@@ -112,4 +114,4 @@ class Lobby extends React.Component {
   }
 }
 
-export default Lobby;
+export default LobbyScreen;

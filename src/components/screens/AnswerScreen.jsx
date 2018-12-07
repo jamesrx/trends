@@ -1,4 +1,5 @@
 import React from 'react';
+import screens from '../../screenTypes';
 
 class AnswerScreen extends React.Component {
   constructor(props) {
@@ -21,9 +22,9 @@ class AnswerScreen extends React.Component {
       // all players' answers are in
       this.props.setFullResults(fullResults);
       this.props.updateGameState({
-        screen: 'RESULT',
+        screen: screens.RESULT,
         rounds,
-      }, this.props.updateTotalScore);
+      }, this.props.setTotalScore);
     });
 
     this.props.socket.on('player.duplicateAnswer', () => {

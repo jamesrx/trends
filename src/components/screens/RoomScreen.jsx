@@ -1,6 +1,7 @@
 import React from 'react';
+import screens from '../../screenTypes';
 
-class Room extends React.Component {
+class RoomScreen extends React.Component {
   constructor(props) {
     super(props);
   }
@@ -14,7 +15,7 @@ class Room extends React.Component {
     this.props.socket.on('room.startGame', () => {
       this.props.setNumRounds(3);
       this.props.updateGameState({
-        screen: 'ANSWER',
+        screen: screens.ANSWER,
         topic: 'Star Wars',
       });
     });
@@ -22,6 +23,7 @@ class Room extends React.Component {
 
   leaveRoom = () => {
     this.props.updateGameState({
+      screen: 'LOBBY',
       room: '',
       isLeader: false, // will always no longer be leader after leaving a room
     });
@@ -53,4 +55,4 @@ class Room extends React.Component {
   }
 }
 
-export default Room;
+export default RoomScreen;

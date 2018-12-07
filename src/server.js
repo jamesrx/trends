@@ -3,7 +3,7 @@ const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 const googleTrends = require('google-trends-api');
-const Username = require('./server/Username');
+const Start = require('./server/Start');
 const Lobby = require('./server/Lobby');
 const Room = require('./server/Room');
 const Answer = require('./server/Answer');
@@ -17,7 +17,7 @@ app.use(function (req, res, next) {
   next();
 });
 
-app.use(express.static(__dirname + '/server'));
+app.use(express.static(__dirname + '/'));
 
 app.get('/trends', function (req, res) {
   const terms = req.query.terms.split(',');
@@ -84,13 +84,9 @@ io.on('connection', (socket) => {
     }
   });
 
-  /*****************
-   * START SCREEN *
-  *****************/
-
-  // Username
+  // Start
   socket.on('submitUsername', (...args) => {
-    Username.submitUsername(rooms, socket, io, players, ...args);
+    Start.submitUsername(rooms, socket, io, players, ...args);
   });
 
   // Lobby
@@ -109,18 +105,12 @@ io.on('connection', (socket) => {
     Room.startGame(rooms, io, ...args);
   });
 
-  /******************
-   * ANSWER SCREEN *
-  ******************/
-
+  // Answer
   socket.on('submitAnswer', (...args) => {
     Answer.submitAnswer(rooms, socket, io, ...args);
   });
 
-  /*******************
-   * RESULTS SCREEN *
-  *******************/
-
+  // Results
   socket.on('startNextRound', (roomName) => {
     io.to(roomName).emit('room.startNextRound');
   });
