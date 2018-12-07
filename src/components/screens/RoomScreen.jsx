@@ -9,7 +9,10 @@ class RoomScreen extends React.Component {
   componentDidMount = () => {
     this.props.socket.on('room.leaderLeft', () => {
       // kick everyone out of the room if the leader leaves
-      this.props.updateGameState({room: ''});
+      this.props.updateGameState({
+        screen: screens.LOBBY,
+        room: '',
+      });
     });
 
     this.props.socket.on('room.startGame', () => {
@@ -23,7 +26,7 @@ class RoomScreen extends React.Component {
 
   leaveRoom = () => {
     this.props.updateGameState({
-      screen: 'LOBBY',
+      screen: screens.LOBBY,
       room: '',
       isLeader: false, // will always no longer be leader after leaving a room
     });

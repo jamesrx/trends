@@ -84,7 +84,6 @@ class App extends React.Component {
 
   updateGameState = (state, callback) => {
     this.setState(state, callback);
-    console.log(this.state);
   }
 
   updateRooms = (rooms) => {
@@ -187,8 +186,8 @@ class App extends React.Component {
         {
           Object.keys(this.state.totalScore).length > 0 &&
           <Scoreboard
-            rooms={this.state.rooms}
             room={this.state.room}
+            rooms={this.state.rooms}
             totalScore={this.state.totalScore}
           />
         }

@@ -37,7 +37,10 @@ class LobbyScreen extends React.Component {
     const enteredPassword = event.target.dataset.password || '';
 
     if (this.props.state.rooms[roomNameToJoin].password === enteredPassword) {
-      this.props.updateGameState({room: roomNameToJoin});
+      this.props.updateGameState({
+        screen: screens.ROOM,
+        room: roomNameToJoin,
+      });
       this.props.socket.emit('joinRoom', roomNameToJoin, this.props.state.username);
     } else {
       alert ('Wrong password!');
