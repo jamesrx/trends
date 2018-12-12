@@ -1,5 +1,6 @@
 import React from 'react';
 import screens from '../../screenTypes';
+import BarChart from '../BarChart'
 import LineChart from '../LineChart'
 
 class ResultScreen extends React.Component {
@@ -38,9 +39,15 @@ class ResultScreen extends React.Component {
           }
         </ul>
 
+        <BarChart
+          lastRound={lastRound}
+          colors={this.props.colors}
+        />
+
         <LineChart
           fullResults={this.props.fullResults}
           lastRound={lastRound}
+          colors={this.props.colors}
         />
 
         <h3>Rounds left: {(this.props.numRounds - this.currentRound)}</h3>

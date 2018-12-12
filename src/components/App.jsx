@@ -53,6 +53,13 @@ class App extends React.Component {
     this.socket = io.connect('http://localhost:3000');
     this.numRounds = 0,
     this.fullResults = [],
+    this.colors = [
+      '#2196f3',
+      '#f44336',
+      '#ffca28',
+      '#43a047',
+      '#9c27b0',
+    ];
     this.topics = { // TODO: add banned words per keyword? i.e: trump: {'Donald, 'President'}
       'Politics': [
         'Trump',
@@ -164,6 +171,7 @@ class App extends React.Component {
             {...defaultProps}
             numRounds={this.numRounds}
             fullResults={this.fullResults}
+            colors={this.colors}
           />
         break;
 

@@ -1,50 +1,35 @@
 import React from 'react';
+import Chart from './Chart'
 
 class LineChart extends React.Component {
   constructor(props) {
     super(props);
 
-    this.chartEntries = [];
     this.numEntries = 0;
-    this.chart;
-    this.chartData;
-    this.chartOptions;
-    this.chartElement;
   }
 
-  componentDidMount = () => {
-    this.chartElement = document.getElementById('line-chart');
-    this.chartEntries = this.props.fullResults.map((dataPoint) => (
+  lineChartData = (fullResults, lastRound) => {
+    const chartData = fullResults.map((dataPoint) => (
       [
         dataPoint.formattedAxisTime,
         ...dataPoint.value
       ]
     ));
-    this.numEntries = this.chartEntries.length;
 
-    const headingRow = Object.keys(this.props.lastRound).map((player) => (
-      this.props.lastRound[player].fullTerm
+    this.numEntries = chartData.length;
+
+    const headingRow = Object.keys(lastRound).map((player) => (
+      lastRound[player].fullTerm
     ));
 
-    this.chartEntries.unshift(['Date', ...headingRow]);
-    google.charts.load('current', {'packages':['corechart']});
-    google.charts.setOnLoadCallback(this.setupChart);
-    window.addEventListener('resize', this.drawChart);
+    chartData.unshift(['Date', ...headingRow]);
+
+    return chartData;
   }
 
-  setupChart = () => {
-    const textStyle = {
-      fontName: 'Roboto, Arial, sans-serif',
-      fontSize: 12,
-      color: '#9e9e9e',
-    }
-
-    this.chartData = google.visualization.arrayToDataTable(this.chartEntries);
-    this.chartOptions = {
+  render() {
+    const options = {
       curveType: 'function',
-      legend: {
-        position: 'none',
-      },
       animation: {
         startup: true,
         duration: 1000,
@@ -53,7 +38,6 @@ class LineChart extends React.Component {
         gridlines: {
           count: 4,
         },
-        textStyle,
         viewWindow: {
           min: 0,
           max: 100,
@@ -62,7 +46,6 @@ class LineChart extends React.Component {
       hAxis: {
         showTextEvery: (this.numEntries / 2) - 1,
         maxTextLines: 1,
-        textStyle,
       },
       lineWidth: 3,
       height: 350,
@@ -73,25 +56,16 @@ class LineChart extends React.Component {
         top: 10,
         height: 315,
       },
-      colors: [
-        '#2196f3',
-        '#f44336',
-        '#ffca28',
-        '#43a047',
-        '#9c27b0',
-      ],
+      colors: this.props.colors,
     };
 
-    this.chart = new google.visualization.LineChart(this.chartElement);
-    this.drawChart();
-  }
-
-  drawChart = () => {
-    this.chart.draw(this.chartData, this.chartOptions);
-  }
-
-  render() {
-    return <div id="line-chart"></div>;
+    return (
+      <Chart
+        visualization='LineChart'
+        data={this.lineChartData(this.props.fullResults, this.props.lastRound)}
+        options={options}
+      />
+    );
   }
 }
 
