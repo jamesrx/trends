@@ -14,7 +14,7 @@ class Scoreboard extends React.Component {
         <h3>Scoreboard:</h3>
         <ul>
           {
-            this.props.rooms[this.props.room].players.map((player) => (
+            this.props.rooms[this.props.roomName].players.map((player) => (
               <li key={player.socketId}>{player.username}: {this.props.totalScore[player.username]}</li>
             ))
           }

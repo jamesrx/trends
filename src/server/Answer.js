@@ -30,7 +30,7 @@ const isTermDuplicate = (term, round) => {
   return duplicate;
 }
 
-exports.submitAnswer = (rooms, socket, io, term, fullTerm, username, roundNum, numPlayersInRoom, roomName) => {
+exports.submitAnswer = (rooms, socket, io, term, fullTerm, username, roundNum, roomName) => {
   const round = rooms[roomName].rounds[roundNum];
 
   if(!round) {
@@ -53,8 +53,8 @@ exports.submitAnswer = (rooms, socket, io, term, fullTerm, username, roundNum, n
   round[username] = { term, fullTerm };
   const players = Object.keys(round);
 
-  // the last answer for the round
-  if (players.length === numPlayersInRoom) {
+  // the last answer for the round (all players have answered)
+  if (players.length === rooms[roomName].players.length) {
     // if the term is blank, use a junk term that will score 0 to maintain order of results
     const placeholderTerm = 'akjsdakjsbdajsdabasdjb';
     const terms = players.map((player) => (

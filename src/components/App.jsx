@@ -1,5 +1,6 @@
 import React from 'react';
 import screens from '../screenTypes';
+import topics from  '../topics';
 import StartScreen from './screens/StartScreen';
 import LobbyScreen from './screens/LobbyScreen';
 import RoomScreen from './screens/RoomScreen';
@@ -16,7 +17,7 @@ class App extends React.Component {
     this.state = {
       screen: screens.START,
       username: '',
-      room: '',
+      roomName: '',
       isLeader: false,
       rooms: {},
       rounds: [],
@@ -28,6 +29,8 @@ class App extends React.Component {
           hasStarted: false,
           password: '',
           leader: 'leaderName',
+          topic: 'Star Wars'
+          rounds: 5
           players: [{
             socketId: 'abc123',
             username: 'username1',
@@ -52,6 +55,7 @@ class App extends React.Component {
     // this.socket = io.connect('https://simplistic-chatter.glitch.me/');
     this.socket = io.connect('http://localhost:3000');
     this.numRounds = 0,
+    this.maxPlayersPerRoom = 5;
     this.fullResults = [],
     this.colors = [
       '#2196f3',
@@ -60,28 +64,7 @@ class App extends React.Component {
       '#43a047',
       '#9c27b0',
     ];
-    this.topics = { // TODO: add banned words per keyword? i.e: trump: {'Donald, 'President'}
-      'Politics': [
-        'Trump',
-        'Russia',
-        'President',
-      ],
-      'Star Wars': [
-        'Jedi',
-        'Force',
-        'Saber',
-      ],
-      'Sex': [
-        'nipples',
-        'trans',
-        'blowjob',
-        'sweaty',
-        'loads',
-        'shaved',
-        'gaping',
-        'impregnation',
-      ]
-    }
+    this.topics = topics; // TODO: add banned words per keyword? i.e: trump: {'Donald, 'President'}
   }
 
   componentDidMount = () => {
@@ -143,6 +126,7 @@ class App extends React.Component {
         nextScreen =
           <LobbyScreen
             {...defaultProps}
+            maxPlayersPerRoom={this.maxPlayersPerRoom}
           />;
         break;
 
@@ -151,6 +135,8 @@ class App extends React.Component {
           <RoomScreen
             {...defaultProps}
             setNumRounds={this.setNumRounds}
+            topics={this.topics}
+            maxPlayersPerRoom={this.maxPlayersPerRoom}
           />;
         break;
 
@@ -194,7 +180,7 @@ class App extends React.Component {
         {
           Object.keys(this.state.totalScore).length > 0 &&
           <Scoreboard
-            room={this.state.room}
+            roomName={this.state.roomName}
             rooms={this.state.rooms}
             totalScore={this.state.totalScore}
           />

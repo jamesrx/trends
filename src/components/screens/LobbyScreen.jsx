@@ -26,7 +26,7 @@ class LobbyScreen extends React.Component {
     this.props.socket.on('player.acceptedRoomName', () => {
       this.props.updateGameState({
         screen: screens.ROOM,
-        room: this.state.newRoomName,
+        roomName: this.state.newRoomName,
         isLeader: true,
       });
     });
@@ -39,7 +39,7 @@ class LobbyScreen extends React.Component {
     if (this.props.state.rooms[roomNameToJoin].password === enteredPassword) {
       this.props.updateGameState({
         screen: screens.ROOM,
-        room: roomNameToJoin,
+        roomName: roomNameToJoin,
       });
       this.props.socket.emit('joinRoom', roomNameToJoin, this.props.state.username);
     } else {
@@ -96,7 +96,7 @@ class LobbyScreen extends React.Component {
                   <li key={room}>
                     {room}
                     {this.props.state.rooms[room].password ? <input type="password" value={this.state.joinRoomPassword[room]} data-room={room} onChange={this.onJoinRoomPasswordChange} /> : ''}
-                    {(this.props.state.rooms[room].players.length < 5) && <button type="button" value={room} data-password={this.state.joinRoomPassword[room]} onClick={this.joinRoom}>Join</button>}
+                    {(this.props.state.rooms[room].players.length < this.props.maxPlayersPerRoom) && <button type="button" value={room} data-password={this.state.joinRoomPassword[room]} onClick={this.joinRoom}>Join</button>}
                   </li>
                 ))
               }

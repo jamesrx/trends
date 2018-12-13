@@ -18,7 +18,7 @@ class ResultScreen extends React.Component {
   }
 
   startNextRound = () => {
-    this.props.socket.emit('startNextRound', this.props.state.room);
+    this.props.socket.emit('startNextRound', this.props.state.roomName);
   }
 
   render() {

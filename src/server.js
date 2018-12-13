@@ -84,30 +84,35 @@ io.on('connection', (socket) => {
     }
   });
 
+  const defaultArgs = [rooms, socket, io];
+
   // Start
   socket.on('submitUsername', (...args) => {
-    Start.submitUsername(rooms, socket, io, players, ...args);
+    Start.submitUsername(...defaultArgs, players, ...args);
   });
 
   // Lobby
   socket.on('createRoom', (...args) => {
-    Lobby.createRoom(rooms, socket, io, ...args);
+    Lobby.createRoom(...defaultArgs, ...args);
   });
   socket.on('joinRoom', (...args) => {
-    Lobby.joinRoom(rooms, socket, io, ...args);
+    Lobby.joinRoom(...defaultArgs, ...args);
   });
 
   // Room
   socket.on('leaveRoom', (...args) => {
-    Room.leaveRoom(rooms, socket, io, ...args)
+    Room.leaveRoom(...defaultArgs, ...args)
   });
   socket.on('startGame', (...args) => {
     Room.startGame(rooms, io, ...args);
   });
+  socket.on('updateSettings', (...args) => {
+    Room.updateSettings(socket, ...args);
+  });
 
   // Answer
   socket.on('submitAnswer', (...args) => {
-    Answer.submitAnswer(rooms, socket, io, ...args);
+    Answer.submitAnswer(...defaultArgs, ...args);
   });
 
   // Results

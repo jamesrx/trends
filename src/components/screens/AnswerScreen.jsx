@@ -66,8 +66,7 @@ class AnswerScreen extends React.Component {
       fullTerm,
       this.props.state.username,
       this.roundNum,
-      this.props.state.rooms[this.props.state.room].players.length,
-      this.props.state.room
+      this.props.state.roomName
     );
   }
 
