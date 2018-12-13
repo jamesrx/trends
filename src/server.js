@@ -107,7 +107,7 @@ io.on('connection', (socket) => {
     Room.startGame(rooms, io, ...args);
   });
   socket.on('updateSettings', (...args) => {
-    Room.updateSettings(socket, ...args);
+    Room.updateSettings(rooms, socket, ...args);
   });
 
   // Answer

@@ -21,10 +21,11 @@ class AnswerScreen extends React.Component {
     this.props.socket.on('room.submitAnswer', (rounds, fullResults) => {
       // all players' answers are in
       this.props.setFullResults(fullResults);
+      this.props.updateTotalScore(rounds[rounds.length - 1]);
       this.props.updateGameState({
         screen: screens.RESULT,
         rounds,
-      }, this.props.setTotalScore);
+      });
     });
 
     this.props.socket.on('player.duplicateAnswer', () => {
@@ -52,6 +53,9 @@ class AnswerScreen extends React.Component {
 
   componentWillUnmount = () => {
     clearInterval(this.roundTimer);
+    this.props.socket.off('room.submitAnswer');
+    this.props.socket.off('player.duplicateAnswer');
+    this.props.socket.off('player.acceptedAnswer');
   }
 
   sendAnswerData = (term = '', fullTerm = '') => {
@@ -116,12 +120,12 @@ class AnswerScreen extends React.Component {
       minWidth: '10px',
       margin: '0px 3px',
     };
-    const keywords = this.props.topics[this.props.state.topic] || [];
+    const keywords = this.props.topics[this.props.state.rooms[this.props.state.roomName].topic] || [];
     this.keyword = keywords[this.roundNum];
 
     return (
       <div id="answerscreen">
-        <h3>Round: {this.roundNum + 1} / {this.props.numRounds}</h3>
+        <h3>Round: {this.roundNum + 1} / {this.props.state.rooms[this.props.state.roomName].numRounds}</h3>
         {!this.state.submittedAnswer && <div>You have <b>{this.state.timeLeft}</b> seconds to answer!</div>}
         <form onSubmit={this.submitAnswer}>
           <div onFocus={this.disableInput}>

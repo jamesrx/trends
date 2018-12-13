@@ -32,6 +32,12 @@ class LobbyScreen extends React.Component {
     });
   }
 
+  componentWillUnmount = () => {
+    this.props.socket.off('player.duplicateRoomName');
+    this.props.socket.off('player.invalidRoomName');
+    this.props.socket.off('player.acceptedRoomName');
+  }
+
   joinRoom = (event) => {
     const roomNameToJoin = event.target.value;
     const enteredPassword = event.target.dataset.password || '';

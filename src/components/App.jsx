@@ -1,6 +1,6 @@
 import React from 'react';
 import screens from '../screenTypes';
-import topics from  '../topics';
+import * as topics from  '../topics.json';
 import StartScreen from './screens/StartScreen';
 import LobbyScreen from './screens/LobbyScreen';
 import RoomScreen from './screens/RoomScreen';
@@ -21,16 +21,15 @@ class App extends React.Component {
       isLeader: false,
       rooms: {},
       rounds: [],
-      topic: '',
-      totalScore: {},
+      // totalScore: {},
       /*
       rooms: {
         'roomname': {
           hasStarted: false,
           password: '',
           leader: 'leaderName',
-          topic: 'Star Wars'
-          rounds: 5
+          topic: 'Star Wars',
+          numRounds: 5,
           players: [{
             socketId: 'abc123',
             username: 'username1',
@@ -54,9 +53,9 @@ class App extends React.Component {
 
     // this.socket = io.connect('https://simplistic-chatter.glitch.me/');
     this.socket = io.connect('http://localhost:3000');
-    this.numRounds = 0,
     this.maxPlayersPerRoom = 5;
-    this.fullResults = [],
+    this.fullResults = [];
+    this.totalScore = {};
     this.colors = [
       '#2196f3',
       '#f44336',
@@ -64,7 +63,7 @@ class App extends React.Component {
       '#43a047',
       '#9c27b0',
     ];
-    this.topics = topics; // TODO: add banned words per keyword? i.e: trump: {'Donald, 'President'}
+    this.topics = topics.default; // TODO: add banned words per keyword? i.e: trump: {'Donald, 'President'}
   }
 
   componentDidMount = () => {
@@ -72,37 +71,26 @@ class App extends React.Component {
     this.socket.on('all.updateRooms', this.updateRooms);
   }
 
-  updateGameState = (state, callback) => {
-    this.setState(state, callback);
+  updateGameState = (state) => {
+    this.setState(state);
   }
 
   updateRooms = (rooms) => {
     this.setState({ rooms });
   };
 
-  setNumRounds = (numRounds) => {
-    this.numRounds = numRounds;
+  updateTotalScore = (lastRound) => {
+    Object.keys(lastRound).forEach(player => {
+      if (!this.totalScore[player]) {
+        this.totalScore[player] = 0;
+      }
+
+      this.totalScore[player] += lastRound[player].points;
+    });
   }
 
   setFullResults = (fullResults) => {
     this.fullResults = fullResults;
-  }
-
-  setTotalScore = () => {
-    this.setState((prevState) => {
-      const newTotal = {}
-
-      prevState.rounds.forEach((round) => {
-        Object.keys(round).forEach(player => {
-          if (!newTotal[player]) {
-            newTotal[player] = 0;
-          }
-          newTotal[player] += round[player].points;
-        });
-      });
-
-      return { totalScore: newTotal };
-    });
   }
 
   screenSelector = (screen) => {
@@ -134,7 +122,6 @@ class App extends React.Component {
         nextScreen =
           <RoomScreen
             {...defaultProps}
-            setNumRounds={this.setNumRounds}
             topics={this.topics}
             maxPlayersPerRoom={this.maxPlayersPerRoom}
           />;
@@ -144,9 +131,8 @@ class App extends React.Component {
         nextScreen =
           <AnswerScreen
             {...defaultProps}
-            setTotalScore={this.setTotalScore}
+            updateTotalScore={this.updateTotalScore}
             topics={this.topics}
-            numRounds={this.numRounds}
             setFullResults={this.setFullResults}
           />
         break;
@@ -155,7 +141,6 @@ class App extends React.Component {
         nextScreen =
           <ResultScreen
             {...defaultProps}
-            numRounds={this.numRounds}
             fullResults={this.fullResults}
             colors={this.colors}
           />
@@ -164,7 +149,7 @@ class App extends React.Component {
         case screens.END:
         nextScreen =
           <EndScreen
-            totalScore={this.state.totalScore}
+            totalScore={this.totalScore}
           />
         break;
     }
@@ -178,11 +163,11 @@ class App extends React.Component {
     return (
       <div>
         {
-          Object.keys(this.state.totalScore).length > 0 &&
+          Object.keys(this.totalScore).length > 0 &&
           <Scoreboard
             roomName={this.state.roomName}
             rooms={this.state.rooms}
-            totalScore={this.state.totalScore}
+            totalScore={this.totalScore}
           />
         }
         {currentScreen}

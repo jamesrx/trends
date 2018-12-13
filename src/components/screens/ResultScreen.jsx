@@ -12,9 +12,13 @@ class ResultScreen extends React.Component {
 
   componentDidMount = () => {
     this.props.socket.on('room.startNextRound', () => {
-      const nextScreen = this.currentRound < this.props.numRounds ? screens.ANSWER : screens.END;
+      const nextScreen = this.currentRound < this.props.state.rooms[this.props.state.roomName].numRounds ? screens.ANSWER : screens.END;
       this.props.updateGameState({ screen: nextScreen });
     });
+  }
+
+  componentWillUnmount = () => {
+    this.props.socket.off('room.startNextRound');
   }
 
   startNextRound = () => {
@@ -50,7 +54,7 @@ class ResultScreen extends React.Component {
           colors={this.props.colors}
         />
 
-        <h3>Rounds left: {(this.props.numRounds - this.currentRound)}</h3>
+        <h3>Rounds left: {(this.props.state.rooms[this.props.state.roomName].numRounds - this.currentRound)}</h3>
         {this.props.state.isLeader && <button type="button" onClick={this.startNextRound}>Next</button>}
       </div>
     );

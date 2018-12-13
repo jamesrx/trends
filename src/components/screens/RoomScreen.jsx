@@ -5,10 +5,11 @@ class RoomScreen extends React.Component {
   constructor(props) {
     super(props);
 
+    this.topicWasSet = false;
     this.topics = Object.keys(this.props.topics);
     this.state = {
-      topic: this.topics[0],
-      numRounds: this.props.topics[this.topics[0]].length,
+      topic: this.props.state.rooms[this.props.state.roomName].topic || this.topics[0],
+      numRounds: this.props.state.rooms[this.props.state.roomName].numRounds || this.props.topics[this.topics[0]].length,
     };
   }
 
@@ -21,17 +22,19 @@ class RoomScreen extends React.Component {
       });
     });
 
-    this.props.socket.on('room.startGame', (topic, numRounds) => {
-      this.props.setNumRounds(numRounds);
-      this.props.updateGameState({
-        screen: screens.ANSWER,
-        topic,
-      });
+    this.props.socket.on('room.startGame', () => {
+      this.props.updateGameState({ screen: screens.ANSWER });
     });
 
     this.props.socket.on('room.updateSettings', (topic, numRounds) => {
       this.setState({ topic, numRounds });
     });
+  }
+
+  componentWillUnmount = () => {
+    this.props.socket.off('room.leaderLeft');
+    this.props.socket.off('room.startGame');
+    this.props.socket.off('room.updateSettings');
   }
 
   leaveRoom = () => {
@@ -46,6 +49,7 @@ class RoomScreen extends React.Component {
   onNumRoundsChange = (event) => {
     const numRounds = event.target.value;
 
+    this.topicWasSet = true;
     this.setState({ numRounds });
     this.props.socket.emit('updateSettings', this.props.state.roomName, this.state.topic, numRounds);
   }
@@ -54,12 +58,16 @@ class RoomScreen extends React.Component {
     const topic = event.target.value;
     const numRounds = this.props.topics[topic].length;
 
+    this.topicWasSet = true;
     this.setState({ topic, numRounds });
     this.props.socket.emit('updateSettings', this.props.state.roomName, topic, numRounds);
   }
 
   startGame = () => {
-    this.props.socket.emit('startGame', this.props.state.roomName, this.state.topic, this.state.numRounds);
+    if (!this.topicWasSet) {
+      this.props.socket.emit('updateSettings', this.props.state.roomName, this.state.topic, this.state.numRounds);
+    }
+    this.props.socket.emit('startGame', this.props.state.roomName);
   }
 
   render() {

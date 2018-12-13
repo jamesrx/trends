@@ -30,6 +30,12 @@ class StartScreen extends React.Component {
     });
   }
 
+  componentWillUnmount = () => {
+    this.props.socket.off('player.duplicateUsername');
+    this.props.socket.off('player.invalidUsername');
+    this.props.socket.off('player.acceptedUsername');
+  }
+
   submitUsername = () => {
     this.props.socket.emit('submitUsername', this.state.username);
   }

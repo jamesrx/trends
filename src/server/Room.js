@@ -15,12 +15,14 @@ exports.leaveRoom = (rooms, socket, io, roomName, username) => {
   });
 };
 
-exports.startGame = (rooms, io, roomName, topic, numRounds) => {
+exports.startGame = (rooms, io, roomName) => {
   rooms[roomName].hasStarted = true;
-  io.to(roomName).emit('room.startGame', topic, numRounds);
+  io.to(roomName).emit('room.startGame');
   io.emit('all.updateRooms', rooms);
 };
 
-exports.updateSettings = (socket, roomName, topic, numRounds) => {
+exports.updateSettings = (rooms, socket, roomName, topic, numRounds) => {
+  rooms[roomName].topic = topic;
+  rooms[roomName].numRounds = numRounds;
   socket.to(roomName).emit('room.updateSettings', topic, numRounds);
 };
