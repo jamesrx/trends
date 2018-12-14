@@ -21,7 +21,6 @@ class App extends React.Component {
       isLeader: false,
       rooms: {},
       rounds: [],
-      // totalScore: {},
       /*
       rooms: {
         'roomname': {

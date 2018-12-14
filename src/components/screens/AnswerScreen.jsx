@@ -15,6 +15,7 @@ class AnswerScreen extends React.Component {
     this.keyword = '';
     this.roundNum = this.props.state.rounds.length;
     this.roundTimer = null;
+    this.termRefs = {};
   }
 
   componentDidMount = () => {
@@ -76,41 +77,30 @@ class AnswerScreen extends React.Component {
 
   submitAnswer = (event) => {
     event.preventDefault();
-    let term = '';
-    let fullTerm = '';
 
-    event.target.childNodes.forEach((childNode) => {
-      const termNodes = childNode.querySelectorAll('[name="terms"]');
-
-      termNodes.forEach((node) => {
-        if (!node.classList.contains('disabled')) {
-          term = node.textContent.trim();
-          fullTerm = node.classList.contains('before') ? `${term} ${this.keyword}` : `${this.keyword} ${term}`;
-        }
-      });
-    });
+    const activeInputName = this.termRefs.before.classList.contains('disabled') ? 'after' : 'before';
+    const term = this.termRefs[activeInputName].textContent.trim();
+    const fullTerm = activeInputName === 'before' ? `${term} ${this.keyword}` : `${this.keyword} ${term}`;
 
     this.sendAnswerData(term, fullTerm);
   }
 
-  disableInput = (event) => {
-    const currentElement = event.target;
+  toggleDisabledInput = (el) => {
+    const oppositeInput = this.termRefs[el.classList.contains('before') ? 'after' : 'before' ];
 
-    if (currentElement.attributes.getNamedItem('name').value === 'terms') {
-      const container = currentElement.parentElement;
-      const oppositeClass = currentElement.classList.contains('before') ? 'after' : 'before';
-      const oppositeInput = container.getElementsByClassName(oppositeClass)[0];
-
-      currentElement.classList.remove('disabled');
-      oppositeInput.classList.add('disabled');
-    }
+    el.classList.remove('disabled');
+    oppositeInput.classList.add('disabled');
   }
 
   validateInput = (event) => {
-    const input = event.target.innerText;
-    const isValid = input.trim().length > 2;
+    const isValid = event.target.innerText.trim().length > 2;
 
     this.setState({validInput: isValid});
+  }
+
+  onFocusHandler = (event) => {
+    this.validateInput(event);
+    this.toggleDisabledInput(event.target);
   }
 
   render() {
@@ -128,11 +118,11 @@ class AnswerScreen extends React.Component {
         <h3>Round: {this.roundNum + 1} / {this.props.state.rooms[this.props.state.roomName].numRounds}</h3>
         {!this.state.submittedAnswer && <div>You have <b>{this.state.timeLeft}</b> seconds to answer!</div>}
         <form onSubmit={this.submitAnswer}>
-          <div onFocus={this.disableInput}>
+          <div>
             Search term:
-            <span contentEditable="true" name="terms" className="before" style={termInput} onInput={this.validateInput} onFocus={this.validateInput}></span>
+            <span contentEditable="true" name="terms" className="before" style={termInput} ref={(el) => { this.termRefs.before = el }} onInput={this.validateInput} onFocus={this.onFocusHandler}></span>
             {this.keyword}
-            <span contentEditable="true" name="terms" className="after" style={termInput} onInput={this.validateInput} onFocus={this.validateInput}></span>
+            <span contentEditable="true" name="terms" className="after" style={termInput} ref={(el) => { this.termRefs.after = el }} onInput={this.validateInput} onFocus={this.onFocusHandler}></span>
           </div>
           {!this.state.submittedAnswer && this.state.validInput && <button type="submit">Go!</button>}
           <div>{this.state.acceptedAnswer ? 'Waiting on other players to answer' : ''}</div>

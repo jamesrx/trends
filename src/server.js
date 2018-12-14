@@ -33,91 +33,60 @@ app.get('/trends', function (req, res) {
   });
 });
 
-const rooms = {};
-const players = {};
+// setInterval(() => {
+//   const used = process.memoryUsage();
+//   for (let key in used) {
+//     console.log(`${key} ${Math.round(used[key] / 1024 / 1024 * 100) / 100} MB`);
+//   }
+//   console.log('------------');
+// }, 3000);
 
-io.on('connection', (socket) => {
+(function() {
+  const rooms = {};
+  const players = {};
+  
+  io.on('connection', (socket) => {
+    const defaultArgs = [rooms, socket, io];
 
-  socket.on('disconnect', () => {
-    const roomList = Object.keys(rooms);
-    let foundPlayer = false;
-
-    for (let i = 0; i < roomList.length; i++) {
-      const roomName = roomList[i];
-      const room = rooms[roomName];
-      const playerList = room.players;
-
-      for (let j = 0; j < playerList.length; j++) {
-        const player = playerList[j];
-
-        if (player.socketId === socket.id) {
-          if (room.leader === player.username) {
-            // player that disconnected was leader, so delete the room
-            delete rooms[roomName];
-            io.to(roomName).emit('room.leaderLeft');
-          } else {
-            // remove player from room
-            playerList.splice(j, 1);
-          }
-
-          io.emit('all.updateRooms', rooms);
-
-          // remove from players map
-          delete players[player.username];
-          foundPlayer = true;
-          break;
-        }
+    socket.on('disconnect', () => {
+      if (!Room.disconnect(...defaultArgs, players)) {
+        Lobby.disconnect(players, socket.id);
       }
+    });
 
-      if (foundPlayer) {
-        break;
-      }
-    }
+    // Start
+    socket.on('submitUsername', (...args) => {
+      Start.submitUsername(...defaultArgs, players, ...args);
+    });
 
-    if (!foundPlayer) {
-      // look up and delete player if they weren't in a room
-      const player = Object.keys(players).find((player) => {
-        return players[player] === socket.id;
-      });
+    // Lobby
+    socket.on('createRoom', (...args) => {
+      Lobby.createRoom(...defaultArgs, ...args);
+    });
+    socket.on('joinRoom', (...args) => {
+      Lobby.joinRoom(...defaultArgs, ...args);
+    });
 
-      delete players[player];
-    }
+    // Room
+    socket.on('leaveRoom', (...args) => {
+      Room.leaveRoom(...defaultArgs, ...args)
+    });
+    socket.on('startGame', (...args) => {
+      Room.startGame(rooms, io, ...args);
+    });
+    socket.on('updateSettings', (...args) => {
+      Room.updateSettings(rooms, socket, ...args);
+    });
+
+    // Answer
+    socket.on('submitAnswer', (...args) => {
+      Answer.submitAnswer(...defaultArgs, ...args);
+    });
+
+    // Results
+    socket.on('startNextRound', (roomName) => {
+      io.to(roomName).emit('room.startNextRound');
+    });
+
   });
-
-  const defaultArgs = [rooms, socket, io];
-
-  // Start
-  socket.on('submitUsername', (...args) => {
-    Start.submitUsername(...defaultArgs, players, ...args);
-  });
-
-  // Lobby
-  socket.on('createRoom', (...args) => {
-    Lobby.createRoom(...defaultArgs, ...args);
-  });
-  socket.on('joinRoom', (...args) => {
-    Lobby.joinRoom(...defaultArgs, ...args);
-  });
-
-  // Room
-  socket.on('leaveRoom', (...args) => {
-    Room.leaveRoom(...defaultArgs, ...args)
-  });
-  socket.on('startGame', (...args) => {
-    Room.startGame(rooms, io, ...args);
-  });
-  socket.on('updateSettings', (...args) => {
-    Room.updateSettings(rooms, socket, ...args);
-  });
-
-  // Answer
-  socket.on('submitAnswer', (...args) => {
-    Answer.submitAnswer(...defaultArgs, ...args);
-  });
-
-  // Results
-  socket.on('startNextRound', (roomName) => {
-    io.to(roomName).emit('room.startNextRound');
-  });
-
-});
+})();
