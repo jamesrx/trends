@@ -44,7 +44,7 @@ app.get('/trends', function (req, res) {
 (function() {
   const rooms = {};
   const players = {};
-  
+
   io.on('connection', (socket) => {
     const defaultArgs = [rooms, socket, io];
 

@@ -90,8 +90,8 @@ class LobbyScreen extends React.Component {
     const roomList = Object.keys(this.props.state.rooms);
 
     return (
-      <div>
-        <div>Welcome to the game lobby <b>{this.props.state.username}</b>!</div>
+      <>
+        <p>Welcome to the game lobby <b>{this.props.state.username}</b>!</p>
         {roomList.length > 0 && roomList.some(room => !this.props.state.rooms[room].hasStarted)
           ? <div>
             <h3>Join a game:</h3>
@@ -118,7 +118,7 @@ class LobbyScreen extends React.Component {
           {this.state.invalidRoomName && <div>Enter a room name between 3-20 characters</div>}
           {this.state.duplicateRoomName && <div>That room name's already in use</div>}
         </div>
-      </div>
+      </>
     );
   }
 }

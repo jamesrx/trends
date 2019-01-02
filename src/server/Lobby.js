@@ -7,7 +7,7 @@ exports.createRoom = (rooms, socket, io, username, roomName, password) => {
       return;
     }
 
-    if (!utils.isValidName(roomName)) {
+    if (!utils.isValidLength(roomName)) {
       socket.emit('player.invalidRoomName');
       return
     }

@@ -80,8 +80,8 @@ class RoomScreen extends React.Component {
     }
 
     return (
-      <div>
-        You're in room {this.props.state.roomName}! <button type="button" onClick={this.leaveRoom}>Leave Room</button>
+      <>
+        <p>You're in room {this.props.state.roomName}! <button type="button" onClick={this.leaveRoom}>Leave Room</button></p>
         {
           <div>
             Topic:
@@ -109,7 +109,7 @@ class RoomScreen extends React.Component {
           ? playersInRoom.length > 1 ? <button type="button" onClick={this.startGame}>Start</button> : <div>Waiting for more players</div>
           : <div>Waiting for the room leader to start the game</div>
         }
-      </div>
+      </>
     );
   }
 }

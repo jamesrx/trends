@@ -29,7 +29,7 @@ class ResultScreen extends React.Component {
     const lastRound = this.props.state.rounds[this.currentRound - 1] || {};
 
     return (
-      <div id="resultscreen">
+      <>
         <h3>Results from round {this.currentRound}:</h3>
         <ul>
           {
@@ -56,7 +56,7 @@ class ResultScreen extends React.Component {
 
         <h3>Rounds left: {(this.props.state.rooms[this.props.state.roomName].numRounds - this.currentRound)}</h3>
         {this.props.state.isLeader && <button type="button" onClick={this.startNextRound}>Next</button>}
-      </div>
+      </>
     );
   }
 }

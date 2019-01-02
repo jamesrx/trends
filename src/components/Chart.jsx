@@ -23,7 +23,6 @@ class Chart extends React.Component {
   setupChart = () => {
     const chartElement = this.chartRef.current;
     const textStyle = {
-      fontName: 'Roboto, Arial, sans-serif',
       fontSize: 12,
       color: '#9e9e9e',
     };

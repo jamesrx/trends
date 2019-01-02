@@ -1,4 +1,5 @@
 const googleTrends = require('google-trends-api');
+const utils = require('./Utils');
 
 const getPointsForTerms = (terms, callback) => {
   googleTrends.interestOverTime({
@@ -32,6 +33,11 @@ const isTermDuplicate = (term, round) => {
 
 exports.submitAnswer = (rooms, socket, io, term, fullTerm, username, roundNum, roomName) => {
   const round = rooms[roomName].rounds[roundNum];
+
+  if (term !== '' && !utils.isValidLength(term)) {
+    socket.emit('player.invalidAnswer');
+    return;
+  }
 
   if(!round) {
     // first player to answer this round

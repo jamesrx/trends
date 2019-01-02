@@ -18,10 +18,10 @@ class EndScreen extends React.Component {
 
   render() {
     return (
-      <div>
+      <>
         <h1>Game Over!</h1>
         <h2>Winner: {this.findWinner(this.props.totalScore)}</h2>
-      </div>
+      </>
     );
   }
 }

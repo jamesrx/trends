@@ -9,6 +9,7 @@ import ResultScreen from './screens/ResultScreen';
 import EndScreen from './screens/EndScreen';
 import Scoreboard from './Scoreboard';
 import io from 'socket.io-client';
+import style from '../styles/app.scss';
 
 class App extends React.Component {
   constructor(props) {
@@ -66,8 +67,11 @@ class App extends React.Component {
   }
 
   componentDidMount = () => {
-    this.socket.emit('playerConnected');
     this.socket.on('all.updateRooms', this.updateRooms);
+  }
+
+  componentWillUnmount = () => {
+    this.socket.off('all.updateRooms');
   }
 
   updateGameState = (state) => {
@@ -76,7 +80,7 @@ class App extends React.Component {
 
   updateRooms = (rooms) => {
     this.setState({ rooms });
-  };
+  }
 
   updateTotalScore = (lastRound) => {
     Object.keys(lastRound).forEach(player => {
@@ -160,7 +164,7 @@ class App extends React.Component {
     const currentScreen = this.screenSelector(this.state.screen);
 
     return (
-      <div>
+      <div className={style.root}>
         {
           Object.keys(this.totalScore).length > 0 &&
           <Scoreboard

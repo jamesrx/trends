@@ -9,7 +9,7 @@ class AnswerScreen extends React.Component {
       submittedAnswer: false,
       acceptedAnswer: false,
       duplicateAnswer: false,
-      validInput: false,
+      invalidAnswer: false,
     }
 
     this.keyword = '';
@@ -36,26 +36,34 @@ class AnswerScreen extends React.Component {
       });
     });
 
+    this.props.socket.on('player.invalidAnswer', () => {
+      this.setState({
+        submittedAnswer: false,
+        invalidAnswer: true,
+      });
+    });
+
     this.props.socket.on('player.acceptedAnswer', () => {
       clearInterval(this.roundTimer);
       this.setState({ acceptedAnswer: true });
     });
 
-    this.roundTimer = setInterval(() => {
-      let newTimeLeft = this.state.timeLeft - 1;
+    // this.roundTimer = setInterval(() => {
+    //   let newTimeLeft = this.state.timeLeft - 1;
 
-      if (newTimeLeft) {
-        this.setState({ timeLeft: newTimeLeft });  
-      } else {
-        this.sendAnswerData();
-      }
-    }, 1000); // count down every second
+    //   if (newTimeLeft) {
+    //     this.setState({ timeLeft: newTimeLeft });  
+    //   } else {
+    //     this.sendAnswerData();
+    //   }
+    // }, 1000); // count down every second
   }
 
   componentWillUnmount = () => {
     clearInterval(this.roundTimer);
     this.props.socket.off('room.submitAnswer');
     this.props.socket.off('player.duplicateAnswer');
+    this.props.socket.off('player.invalidAnswer');
     this.props.socket.off('player.acceptedAnswer');
   }
 
@@ -92,14 +100,15 @@ class AnswerScreen extends React.Component {
     oppositeInput.classList.add('disabled');
   }
 
-  validateInput = (event) => {
-    const isValid = event.target.innerText.trim().length > 2;
+  validateAnswer = (event) => {
+    const answerLength = event.target.innerText.trim().length;
+    const invalidAnswer = answerLength < 3 || answerLength > 20;
 
-    this.setState({validInput: isValid});
+    this.setState({ invalidAnswer });
   }
 
   onFocusHandler = (event) => {
-    this.validateInput(event);
+    this.validateAnswer(event);
     this.toggleDisabledInput(event.target);
   }
 
@@ -114,21 +123,22 @@ class AnswerScreen extends React.Component {
     this.keyword = keywords[this.roundNum];
 
     return (
-      <div id="answerscreen">
+      <>
         <h3>Round: {this.roundNum + 1} / {this.props.state.rooms[this.props.state.roomName].numRounds}</h3>
         {!this.state.submittedAnswer && <div>You have <b>{this.state.timeLeft}</b> seconds to answer!</div>}
         <form onSubmit={this.submitAnswer}>
           <div>
             Search term:
-            <span contentEditable="true" name="terms" className="before" style={termInput} ref={(el) => { this.termRefs.before = el }} onInput={this.validateInput} onFocus={this.onFocusHandler}></span>
+            <span contentEditable="true" name="terms" className="before" style={termInput} ref={(el) => { this.termRefs.before = el }} onInput={this.validateAnswer} onFocus={this.onFocusHandler}></span>
             {this.keyword}
-            <span contentEditable="true" name="terms" className="after" style={termInput} ref={(el) => { this.termRefs.after = el }} onInput={this.validateInput} onFocus={this.onFocusHandler}></span>
+            <span contentEditable="true" name="terms" className="after" style={termInput} ref={(el) => { this.termRefs.after = el }} onInput={this.validateAnswer} onFocus={this.onFocusHandler}></span>
           </div>
-          {!this.state.submittedAnswer && this.state.validInput && <button type="submit">Go!</button>}
+          {this.state.invalidAnswer && <div>Answer must be between 3 and 20 characters long</div>}
+          {!this.state.submittedAnswer && !this.state.invalidAnswer && <button type="submit">Go!</button>}
           <div>{this.state.acceptedAnswer ? 'Waiting on other players to answer' : ''}</div>
           {this.state.duplicateAnswer && <div>Another player already answered with that. Try another term.</div>}
         </form>
-      </div>
+      </>
     );
   }
 }

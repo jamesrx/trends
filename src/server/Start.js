@@ -6,7 +6,7 @@ exports.submitUsername = (rooms, socket, io, players, username) => {
     return;
   }
 
-  if (!utils.isValidName(username)) {
+  if (!utils.isValidLength(username)) {
     socket.emit('player.invalidUsername');
     return;
   }

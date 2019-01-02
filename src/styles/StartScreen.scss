@@ -1,3 +1,45 @@
+.logo {
+  margin: 0 auto;
+  font-family: futura;
+  color: #4285F4
+}
+
+.trends {
+  float: left;
+  font-size: 100px;
+  line-height: 90px;
+  letter-spacing: -5px;
+}
+
+.game {
+  font-size: 40px;
+  line-height: 40px;
+  text-align: right;
+}
+
+.arrow {
+  width: 122px;
+  margin-left: 10px;
+}
+
+// .cover {
+//   background: white;
+//   height: 90px;
+//   width: 128px;
+//   position: absolute;
+//   top: 0;
+//   right: 0;
+// }
+
+// .cover.go {
+//   transition: all .5s linear;
+//   width: 0 !important;
+// }
+
+.r, .s { color: #DB4437 }
+.e { color: #F4B400 }
+.d { color: #0F9D58 }
+
 .invalid {
   color: red;
 }

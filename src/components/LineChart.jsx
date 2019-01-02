@@ -28,6 +28,8 @@ class LineChart extends React.Component {
   }
 
   render() {
+    // call lineChartData before setting options so that numEntries is set
+    const lineChartData = this.lineChartData(this.props.fullResults, this.props.lastRound);
     const options = {
       curveType: 'function',
       animation: {
@@ -62,7 +64,7 @@ class LineChart extends React.Component {
     return (
       <Chart
         visualization='LineChart'
-        data={this.lineChartData(this.props.fullResults, this.props.lastRound)}
+        data={lineChartData}
         options={options}
       />
     );
