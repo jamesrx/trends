@@ -1,117 +1,214 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import screens from '../../screenTypes';
 
 class RoomScreen extends React.Component {
   constructor(props) {
     super(props);
+    const {
+      topics,
+      state,
+    } = this.props;
 
     this.topicWasSet = false;
-    this.topics = Object.keys(this.props.topics);
+    this.topics = Object.keys(topics);
     this.state = {
-      topic: this.props.state.rooms[this.props.state.roomName].topic || this.topics[0],
-      numRounds: this.props.state.rooms[this.props.state.roomName].numRounds || this.props.topics[this.topics[0]].length,
+      topic: state.rooms[state.roomName].topic || this.topics[0],
+      numRounds: state.rooms[state.roomName].numRounds || topics[this.topics[0]].length,
     };
   }
 
   componentDidMount = () => {
-    this.props.socket.on('room.leaderLeft', () => {
+    const {
+      socket,
+      updateGameState,
+    } = this.props;
+
+    socket.on('room.leaderLeft', () => {
       // kick everyone out of the room if the leader leaves
-      this.props.updateGameState({
+      updateGameState({
         screen: screens.LOBBY,
         roomName: '',
       });
     });
 
-    this.props.socket.on('room.startGame', () => {
-      this.props.updateGameState({ screen: screens.ANSWER });
+    socket.on('room.startGame', () => {
+      updateGameState({ screen: screens.ANSWER });
     });
 
-    this.props.socket.on('room.updateSettings', (topic, numRounds) => {
+    socket.on('room.updateSettings', (topic, numRounds) => {
       this.setState({ topic, numRounds });
     });
   }
 
   componentWillUnmount = () => {
-    this.props.socket.off('room.leaderLeft');
-    this.props.socket.off('room.startGame');
-    this.props.socket.off('room.updateSettings');
+    const { socket } = this.props;
+
+    socket.off('room.leaderLeft');
+    socket.off('room.startGame');
+    socket.off('room.updateSettings');
   }
 
   leaveRoom = () => {
-    this.props.updateGameState({
+    const {
+      updateGameState,
+      socket,
+      state,
+    } = this.props;
+
+    updateGameState({
       screen: screens.LOBBY,
       roomName: '',
       isLeader: false, // will always no longer be leader after leaving a room
     });
-    this.props.socket.emit('leaveRoom', this.props.state.roomName, this.props.state.username);
+    socket.emit('leaveRoom', state.roomName, state.username);
   }
 
   onNumRoundsChange = (event) => {
     const numRounds = event.target.value;
+    const {
+      socket,
+      state,
+    } = this.props;
+    const { topic } = this.state;
 
     this.topicWasSet = true;
     this.setState({ numRounds });
-    this.props.socket.emit('updateSettings', this.props.state.roomName, this.state.topic, numRounds);
+    socket.emit('updateSettings', state.roomName, topic, numRounds);
   }
 
   onTopicChange = (event) => {
+    const {
+      topics,
+      socket,
+      state,
+    } = this.props;
     const topic = event.target.value;
-    const numRounds = this.props.topics[topic].length;
+    const numRounds = topics[topic].length;
 
     this.topicWasSet = true;
     this.setState({ topic, numRounds });
-    this.props.socket.emit('updateSettings', this.props.state.roomName, topic, numRounds);
+    socket.emit('updateSettings', state.roomName, topic, numRounds);
   }
 
   startGame = () => {
+    const {
+      socket,
+      state,
+    } = this.props;
+
+    const {
+      topic,
+      numRounds,
+    } = this.state;
+
     if (!this.topicWasSet) {
-      this.props.socket.emit('updateSettings', this.props.state.roomName, this.state.topic, this.state.numRounds);
+      socket.emit('updateSettings', state.roomName, topic, numRounds);
     }
-    this.props.socket.emit('startGame', this.props.state.roomName);
+
+    socket.emit('startGame', state.roomName);
   }
 
   render() {
-    const currentRoom = this.props.state.rooms[this.props.state.roomName] || {};
+    const {
+      state,
+      topics,
+      maxPlayersPerRoom,
+    } = this.props;
+
+    const {
+      topic,
+      numRounds,
+    } = this.state;
+
+    const currentRoom = state.rooms[state.roomName] || {};
     const playersInRoom = currentRoom.players || [];
     const rounds = [];
 
-    for (let i = this.props.topics[this.state.topic].length; i > 0; i--) {
+    for (let i = topics[topic].length; i > 0; i -= 1) {
       rounds.push(<option key={i}>{i}</option>);
     }
 
+    const renderStartGame = () => {
+      if (state.isLeader) {
+        if (playersInRoom.length > 1) {
+          return (
+            <button
+              type="button"
+              onClick={this.startGame}
+            >
+              Start
+            </button>
+          );
+        }
+        return (<div>Waiting for more players</div>);
+      }
+      return (<div>Waiting for the room leader to start the game</div>);
+    };
+
     return (
       <>
-        <p>You're in room {this.props.state.roomName}! <button type="button" onClick={this.leaveRoom}>Leave Room</button></p>
+        <p>
+          You&apos;re in room
+          {state.roomName}
+          !
+          <button
+            type="button"
+            onClick={this.leaveRoom}
+          >
+            Leave Room
+          </button>
+        </p>
         {
           <div>
             Topic:
-            <select disabled={this.props.state.isLeader ? '' : 'disabled'} value={this.state.topic} onChange={this.onTopicChange}>
-              {this.topics.map((topic) => (
-                <option key={topic}>{topic}</option>
+            <select
+              disabled={state.isLeader ? '' : 'disabled'}
+              value={topic}
+              onChange={this.onTopicChange}
+            >
+              {this.topics.map(topicEl => (
+                <option key={topicEl}>{topicEl}</option>
               ))}
             </select>
+
             Rounds:
-            <select disabled={this.props.state.isLeader ? '' : 'disabled'} value={this.state.numRounds} onChange={this.onNumRoundsChange}>
+            <select
+              disabled={state.isLeader ? '' : 'disabled'}
+              value={numRounds}
+              onChange={this.onNumRoundsChange}
+            >
               {rounds}
             </select>
           </div>
         }
-        <h3>Players ({`${playersInRoom.length} / ${this.props.maxPlayersPerRoom}`}):</h3>
+
+        <h3>
+          Players (
+          {`${playersInRoom.length} / ${maxPlayersPerRoom}`}
+          ):
+        </h3>
+
         <ul>
           {
-            playersInRoom.map((player) => (
+            playersInRoom.map(player => (
               <li key={player.socketId}>{player.username}</li>
             ))
           }
         </ul>
-        {
-          this.props.state.isLeader
-          ? playersInRoom.length > 1 ? <button type="button" onClick={this.startGame}>Start</button> : <div>Waiting for more players</div>
-          : <div>Waiting for the room leader to start the game</div>
-        }
+
+        {renderStartGame()}
       </>
     );
   }
 }
+
+RoomScreen.propTypes = {
+  topics: PropTypes.object.isRequired,
+  state: PropTypes.object.isRequired,
+  socket: PropTypes.object.isRequired,
+  updateGameState: PropTypes.func.isRequired,
+  maxPlayersPerRoom: PropTypes.number.isRequired,
+};
 
 export default RoomScreen;

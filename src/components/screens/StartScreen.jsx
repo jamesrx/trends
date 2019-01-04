@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import style from '../../styles/startScreen.scss';
 import screens from '../../screenTypes';
 
@@ -14,30 +15,41 @@ class StartScreen extends React.Component {
   }
 
   componentDidMount = () => {
-    this.props.socket.on('player.duplicateUsername', () => {
+    const {
+      socket,
+      updateGameState,
+    } = this.props;
+
+    socket.on('player.duplicateUsername', () => {
       this.setState({ duplicateUsername: true });
     });
 
-    this.props.socket.on('player.invalidUsername', () => {
+    socket.on('player.invalidUsername', () => {
       this.setState({ invalidUsername: true });
     });
 
-    this.props.socket.on('player.acceptedUsername', () => {
-      this.props.updateGameState({
+    socket.on('player.acceptedUsername', () => {
+      const { username } = this.state;
+      updateGameState({
         screen: screens.LOBBY,
-        username: this.state.username
+        username,
       });
     });
   }
 
   componentWillUnmount = () => {
-    this.props.socket.off('player.duplicateUsername');
-    this.props.socket.off('player.invalidUsername');
-    this.props.socket.off('player.acceptedUsername');
+    const { socket } = this.props;
+
+    socket.off('player.duplicateUsername');
+    socket.off('player.invalidUsername');
+    socket.off('player.acceptedUsername');
   }
 
   submitUsername = () => {
-    this.props.socket.emit('submitUsername', this.state.username);
+    const { socket } = this.props;
+    const { username } = this.state;
+
+    socket.emit('submitUsername', username);
   }
 
   onUsernameChange = (event) => {
@@ -48,29 +60,56 @@ class StartScreen extends React.Component {
     this.setState({
       username,
       invalidUsername,
-      duplicateUsername: false
+      duplicateUsername: false,
     });
   }
 
   render() {
+    const {
+      invalidUsername,
+      username,
+      duplicateUsername,
+    } = this.state;
+
     return (
       <>
-        <div className={style.logo}>
+        {/* <div className={style.logo}>
           <div className={style.trends}>
-            {'Trends'.split('').map((letter) => (
+            {'Trends'.split('').map(letter => (
               <span key={letter} className={style[letter]}>{letter}</span>
             ))}
-            {/* <div className={style.game}>Game</div> */}
           </div>
-          <img className={style.arrow} src="/src/trends-arrow.png" />
-        </div>
-        <p>Enter your name: <input type="text" className={this.state.invalidUsername ? style.invalid : null} value={this.state.username} onChange={this.onUsernameChange} /></p>
-        <button type="button" disabled={this.state.invalidUsername || this.state.duplicateUsername ? 'disabled' : ''} onClick={this.submitUsername}>Connect</button>
-        {this.state.invalidUsername && <div>Enter a name between 3-20 characters</div>}
-        {this.state.duplicateUsername && <div>That name's already in use</div>}
+          <img className={style.arrow} src="/src/trends-arrow.png" alt="Arrow Logo" />
+        </div> */}
+
+        <p>
+          Enter your name:
+          <input
+            type="text"
+            className={invalidUsername ? style.invalid : null}
+            value={username}
+            onChange={this.onUsernameChange}
+          />
+        </p>
+
+        <button
+          type="button"
+          disabled={invalidUsername || duplicateUsername ? 'disabled' : ''}
+          onClick={this.submitUsername}
+        >
+          Connect
+        </button>
+
+        {invalidUsername && <div>Enter a name between 3-20 characters</div>}
+        {duplicateUsername && <div>That name is already in use</div>}
       </>
     );
   }
 }
+
+StartScreen.propTypes = {
+  socket: PropTypes.object.isRequired,
+  updateGameState: PropTypes.func.isRequired,
+};
 
 export default StartScreen;

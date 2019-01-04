@@ -1,12 +1,14 @@
 {
   "parser": "babel-eslint",
   "plugins": [
-    // "react"
+    "react"
   ],
   "extends": [
-    // "airbnb"
+    "airbnb"
   ],
-  "rules": {},
+  "rules": {
+    "react/forbid-prop-types": 0
+  },
   "env": {
     "browser": true,
     "node": true

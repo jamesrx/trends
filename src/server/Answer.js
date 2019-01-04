@@ -61,8 +61,8 @@ exports.submitAnswer = (rooms, socket, io, term, fullTerm, username, roundNum, r
 
   // the last answer for the round (all players have answered)
   if (players.length === rooms[roomName].players.length) {
-    // if the term is blank, use a junk term that will score 0 to maintain order of results
-    const placeholderTerm = 'akjsdakjsbdajsdabasdjb';
+    // if the term is blank, use a term that will score 0 to maintain order of results (plus random str so the searches from the game never get a score)
+    const placeholderTerm = 'gajdwck2ox' + Math.random().toString(36).substring(2);
     const terms = players.map((player) => (
       round[player].term === '' ? placeholderTerm : round[player].fullTerm
     ));

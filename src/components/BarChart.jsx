@@ -1,17 +1,15 @@
 import React from 'react';
-import Chart from './Chart'
+import PropTypes from 'prop-types';
+import Chart from './Chart';
 
 class BarChart extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
-  barChartData = (lastRound) => {
+  getBarChartData = (lastRound) => {
+    const { colors } = this.props;
     const chartData = Object.keys(lastRound).map((player, i) => (
       [
         lastRound[player].fullTerm,
         lastRound[player].points,
-        this.props.colors[i],
+        colors[i],
       ]
     ));
 
@@ -39,16 +37,22 @@ class BarChart extends React.Component {
         },
       },
     };
+    const { lastRound } = this.props;
 
     return (
       <Chart
-        visualization='ColumnChart'
+        visualization="ColumnChart"
         packages={['bar']}
-        data={this.barChartData(this.props.lastRound)}
+        data={this.getBarChartData(lastRound)}
         options={options}
       />
     );
   }
 }
+
+BarChart.propTypes = {
+  colors: PropTypes.arrayOf(PropTypes.string).isRequired,
+  lastRound: PropTypes.object.isRequired,
+};
 
 export default BarChart;

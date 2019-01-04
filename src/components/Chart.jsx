@@ -1,18 +1,18 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 class Chart extends React.Component {
   constructor(props) {
     super(props);
 
     this.chartRef = React.createRef();
-    this.chart;
-    this.chartData;
-    this.chartOptions;
   }
 
   componentDidMount = () => {
-    google.charts.load('current', {'packages':['corechart', ...(this.props.packages || [])]});
-    google.charts.setOnLoadCallback(this.setupChart);
+    const { packages } = this.props;
+
+    window.google.charts.load('current', { packages: ['corechart', ...(packages)] });
+    window.google.charts.setOnLoadCallback(this.setupChart);
     window.addEventListener('resize', this.drawChart);
   }
 
@@ -26,22 +26,27 @@ class Chart extends React.Component {
       fontSize: 12,
       color: '#9e9e9e',
     };
+    const {
+      visualization,
+      data,
+      options,
+    } = this.props;
 
-    this.chart = new google.visualization[this.props.visualization](chartElement);
-    this.chartData = google.visualization.arrayToDataTable(this.props.data);
+    this.chart = new window.google.visualization[visualization](chartElement);
+    this.chartData = window.google.visualization.arrayToDataTable(data);
     this.chartOptions = {
-      ...this.props.options,
+      ...options,
       legend: {
         position: 'none',
       },
       vAxis: {
-        ...this.props.options.vAxis,
-        textStyle
+        ...options.vAxis,
+        textStyle,
       },
       hAxis: {
-        ...this.props.options.hAxis,
-        textStyle
-      }
+        ...options.hAxis,
+        textStyle,
+      },
     };
 
     this.drawChart();
@@ -52,9 +57,20 @@ class Chart extends React.Component {
   }
 
   render() {
-    return <div ref={this.chartRef}></div>;
+    return <div ref={this.chartRef} />;
   }
-
 }
+
+Chart.propTypes = {
+  packages: PropTypes.arrayOf(PropTypes.string),
+  visualization: PropTypes.string.isRequired,
+  data: PropTypes.array.isRequired,
+  options: PropTypes.object,
+};
+
+Chart.defaultProps = {
+  packages: [],
+  options: {},
+};
 
 export default Chart;

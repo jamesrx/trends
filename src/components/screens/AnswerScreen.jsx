@@ -1,85 +1,102 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import screens from '../../screenTypes';
 
 class AnswerScreen extends React.Component {
   constructor(props) {
     super(props);
+    const { state } = this.props;
     this.state = {
       timeLeft: 15, // time to answer, in seconds
       submittedAnswer: false,
       acceptedAnswer: false,
       duplicateAnswer: false,
       invalidAnswer: false,
-    }
+    };
 
     this.keyword = '';
-    this.roundNum = this.props.state.rounds.length;
+    this.roundNum = state.rounds.length;
     this.roundTimer = null;
     this.termRefs = {};
   }
 
   componentDidMount = () => {
-    this.props.socket.on('room.submitAnswer', (rounds, fullResults) => {
+    const {
+      socket,
+      setFullResults,
+      updateTotalScore,
+      updateGameState,
+    } = this.props;
+
+    socket.on('room.submitAnswer', (rounds, fullResults) => {
       // all players' answers are in
-      this.props.setFullResults(fullResults);
-      this.props.updateTotalScore(rounds[rounds.length - 1]);
-      this.props.updateGameState({
+      setFullResults(fullResults);
+      updateTotalScore(rounds[rounds.length - 1]);
+      updateGameState({
         screen: screens.RESULT,
         rounds,
       });
     });
 
-    this.props.socket.on('player.duplicateAnswer', () => {
+    socket.on('player.duplicateAnswer', () => {
       this.setState({
         submittedAnswer: false,
         duplicateAnswer: true,
       });
     });
 
-    this.props.socket.on('player.invalidAnswer', () => {
+    socket.on('player.invalidAnswer', () => {
       this.setState({
         submittedAnswer: false,
         invalidAnswer: true,
       });
     });
 
-    this.props.socket.on('player.acceptedAnswer', () => {
+    socket.on('player.acceptedAnswer', () => {
       clearInterval(this.roundTimer);
       this.setState({ acceptedAnswer: true });
     });
 
-    // this.roundTimer = setInterval(() => {
-    //   let newTimeLeft = this.state.timeLeft - 1;
+    this.roundTimer = setInterval(() => {
+      const { timeLeft } = this.state;
+      const newTimeLeft = timeLeft - 1;
 
-    //   if (newTimeLeft) {
-    //     this.setState({ timeLeft: newTimeLeft });  
-    //   } else {
-    //     this.sendAnswerData();
-    //   }
-    // }, 1000); // count down every second
+      if (newTimeLeft) {
+        this.setState({ timeLeft: newTimeLeft });
+      } else {
+        this.sendAnswerData();
+      }
+    }, 1000); // count down every second
   }
 
   componentWillUnmount = () => {
+    const { socket } = this.props;
+
     clearInterval(this.roundTimer);
-    this.props.socket.off('room.submitAnswer');
-    this.props.socket.off('player.duplicateAnswer');
-    this.props.socket.off('player.invalidAnswer');
-    this.props.socket.off('player.acceptedAnswer');
+    socket.off('room.submitAnswer');
+    socket.off('player.duplicateAnswer');
+    socket.off('player.invalidAnswer');
+    socket.off('player.acceptedAnswer');
   }
 
   sendAnswerData = (term = '', fullTerm = '') => {
+    const {
+      socket,
+      state,
+    } = this.props;
+
     this.setState({
       submittedAnswer: true,
       duplicateAnswer: false,
     });
 
-    this.props.socket.emit(
+    socket.emit(
       'submitAnswer',
       term,
       fullTerm,
-      this.props.state.username,
+      state.username,
       this.roundNum,
-      this.props.state.roomName
+      state.roomName,
     );
   }
 
@@ -94,7 +111,7 @@ class AnswerScreen extends React.Component {
   }
 
   toggleDisabledInput = (el) => {
-    const oppositeInput = this.termRefs[el.classList.contains('before') ? 'after' : 'before' ];
+    const oppositeInput = this.termRefs[el.classList.contains('before') ? 'after' : 'before'];
 
     el.classList.remove('disabled');
     oppositeInput.classList.add('disabled');
@@ -113,34 +130,87 @@ class AnswerScreen extends React.Component {
   }
 
   render() {
+    const {
+      topics,
+      state,
+    } = this.props;
+
+    const keywords = topics[state.rooms[state.roomName].topic] || [];
+    this.keyword = keywords[this.roundNum];
+
+    const {
+      submittedAnswer,
+      timeLeft,
+      invalidAnswer,
+      acceptedAnswer,
+      duplicateAnswer,
+    } = this.state;
+
     const termInput = {
       borderBottom: '1px solid black',
       display: 'inline-block',
       minWidth: '10px',
       margin: '0px 3px',
     };
-    const keywords = this.props.topics[this.props.state.rooms[this.props.state.roomName].topic] || [];
-    this.keyword = keywords[this.roundNum];
 
     return (
       <>
-        <h3>Round: {this.roundNum + 1} / {this.props.state.rooms[this.props.state.roomName].numRounds}</h3>
-        {!this.state.submittedAnswer && <div>You have <b>{this.state.timeLeft}</b> seconds to answer!</div>}
+        <h3>
+          Round:
+          {this.roundNum + 1}
+          /
+          {state.rooms[state.roomName].numRounds}
+        </h3>
+        {!submittedAnswer && (
+          <div>
+            You have
+            <b>{timeLeft}</b>
+            seconds to answer!
+          </div>
+        )}
         <form onSubmit={this.submitAnswer}>
           <div>
             Search term:
-            <span contentEditable="true" name="terms" className="before" style={termInput} ref={(el) => { this.termRefs.before = el }} onInput={this.validateAnswer} onFocus={this.onFocusHandler}></span>
+            <span
+              contentEditable="true"
+              name="terms"
+              className="before"
+              style={termInput}
+              ref={(el) => { this.termRefs.before = el; }}
+              onInput={this.validateAnswer}
+              onFocus={this.onFocusHandler}
+            />
             {this.keyword}
-            <span contentEditable="true" name="terms" className="after" style={termInput} ref={(el) => { this.termRefs.after = el }} onInput={this.validateAnswer} onFocus={this.onFocusHandler}></span>
+            <span
+              contentEditable="true"
+              name="terms"
+              className="after"
+              style={termInput}
+              ref={(el) => { this.termRefs.after = el; }}
+              onInput={this.validateAnswer}
+              onFocus={this.onFocusHandler}
+            />
           </div>
-          {this.state.invalidAnswer && <div>Answer must be between 3 and 20 characters long</div>}
-          {!this.state.submittedAnswer && !this.state.invalidAnswer && <button type="submit">Go!</button>}
-          <div>{this.state.acceptedAnswer ? 'Waiting on other players to answer' : ''}</div>
-          {this.state.duplicateAnswer && <div>Another player already answered with that. Try another term.</div>}
+
+          {invalidAnswer && <p>Answer must be between 3 and 20 characters long</p>}
+          {!submittedAnswer && !invalidAnswer && <button type="submit">Go!</button>}
+          <p>
+            {acceptedAnswer ? 'Waiting on other players to answer' : ''}
+          </p>
+          {duplicateAnswer && <p>Another player already answered with that. Try another term.</p>}
         </form>
       </>
     );
   }
 }
+
+AnswerScreen.propTypes = {
+  state: PropTypes.object.isRequired,
+  socket: PropTypes.object.isRequired,
+  setFullResults: PropTypes.func.isRequired,
+  updateTotalScore: PropTypes.func.isRequired,
+  updateGameState: PropTypes.func.isRequired,
+  topics: PropTypes.object.isRequired,
+};
 
 export default AnswerScreen;

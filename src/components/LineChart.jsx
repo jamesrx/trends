@@ -1,5 +1,6 @@
 import React from 'react';
-import Chart from './Chart'
+import PropTypes from 'prop-types';
+import Chart from './Chart';
 
 class LineChart extends React.Component {
   constructor(props) {
@@ -8,17 +9,17 @@ class LineChart extends React.Component {
     this.numEntries = 0;
   }
 
-  lineChartData = (fullResults, lastRound) => {
-    const chartData = fullResults.map((dataPoint) => (
+  getLineChartData = (fullResults, lastRound) => {
+    const chartData = fullResults.map(dataPoint => (
       [
         dataPoint.formattedAxisTime,
-        ...dataPoint.value
+        ...dataPoint.value,
       ]
     ));
 
     this.numEntries = chartData.length;
 
-    const headingRow = Object.keys(lastRound).map((player) => (
+    const headingRow = Object.keys(lastRound).map(player => (
       lastRound[player].fullTerm
     ));
 
@@ -28,8 +29,14 @@ class LineChart extends React.Component {
   }
 
   render() {
-    // call lineChartData before setting options so that numEntries is set
-    const lineChartData = this.lineChartData(this.props.fullResults, this.props.lastRound);
+    const {
+      fullResults,
+      lastRound,
+      colors,
+    } = this.props;
+
+    // call getLineChartData before setting options so that numEntries is set
+    const lineChartData = this.getLineChartData(fullResults, lastRound);
     const options = {
       curveType: 'function',
       animation: {
@@ -58,17 +65,23 @@ class LineChart extends React.Component {
         top: 10,
         height: 315,
       },
-      colors: this.props.colors,
+      colors,
     };
 
     return (
       <Chart
-        visualization='LineChart'
+        visualization="LineChart"
         data={lineChartData}
         options={options}
       />
     );
   }
 }
+
+LineChart.propTypes = {
+  fullResults: PropTypes.array.isRequired,
+  lastRound: PropTypes.object.isRequired,
+  colors: PropTypes.arrayOf(PropTypes.string).isRequired,
+};
 
 export default LineChart;

@@ -1,6 +1,7 @@
 import React from 'react';
+import io from 'socket.io-client';
 import screens from '../screenTypes';
-import * as topics from  '../topics.json';
+import * as topics from '../topics.json';
 import StartScreen from './screens/StartScreen';
 import LobbyScreen from './screens/LobbyScreen';
 import RoomScreen from './screens/RoomScreen';
@@ -8,7 +9,6 @@ import AnswerScreen from './screens/AnswerScreen';
 import ResultScreen from './screens/ResultScreen';
 import EndScreen from './screens/EndScreen';
 import Scoreboard from './Scoreboard';
-import io from 'socket.io-client';
 import style from '../styles/app.scss';
 
 class App extends React.Component {
@@ -17,11 +17,11 @@ class App extends React.Component {
 
     this.state = {
       screen: screens.START,
-      username: '',
+      username: '', // eslint-disable-line react/no-unused-state
       roomName: '',
-      isLeader: false,
+      isLeader: false, // eslint-disable-line react/no-unused-state
       rooms: {},
-      rounds: [],
+      rounds: [], // eslint-disable-line react/no-unused-state
       /*
       rooms: {
         'roomname': {
@@ -49,7 +49,7 @@ class App extends React.Component {
         },
       }],
       */
-    }
+    };
 
     // this.socket = io.connect('https://simplistic-chatter.glitch.me/');
     this.socket = io.connect('http://localhost:3000');
@@ -63,7 +63,7 @@ class App extends React.Component {
       '#43a047',
       '#9c27b0',
     ];
-    this.topics = topics.default; // TODO: add banned words per keyword? i.e: trump: {'Donald, 'President'}
+    this.topics = topics.default;
   }
 
   componentDidMount = () => {
@@ -83,7 +83,7 @@ class App extends React.Component {
   }
 
   updateTotalScore = (lastRound) => {
-    Object.keys(lastRound).forEach(player => {
+    Object.keys(lastRound).forEach((player) => {
       if (!this.totalScore[player]) {
         this.totalScore[player] = 0;
       }
@@ -107,53 +107,59 @@ class App extends React.Component {
     switch (screen) {
       default:
       case screens.START:
-        nextScreen =
+        nextScreen = (
           <StartScreen
             {...defaultProps}
-          />;
+          />
+        );
         break;
 
       case screens.LOBBY:
-        nextScreen =
+        nextScreen = (
           <LobbyScreen
             {...defaultProps}
             maxPlayersPerRoom={this.maxPlayersPerRoom}
-          />;
+          />
+        );
         break;
 
       case screens.ROOM:
-        nextScreen =
+        nextScreen = (
           <RoomScreen
             {...defaultProps}
             topics={this.topics}
             maxPlayersPerRoom={this.maxPlayersPerRoom}
-          />;
+          />
+        );
         break;
 
       case screens.ANSWER:
-        nextScreen =
+        nextScreen = (
           <AnswerScreen
             {...defaultProps}
             updateTotalScore={this.updateTotalScore}
             topics={this.topics}
             setFullResults={this.setFullResults}
           />
+        );
         break;
-      
+
       case screens.RESULT:
-        nextScreen =
+        nextScreen = (
           <ResultScreen
             {...defaultProps}
             fullResults={this.fullResults}
             colors={this.colors}
           />
+        );
         break;
 
-        case screens.END:
-        nextScreen =
+      case screens.END:
+        nextScreen = (
           <EndScreen
             totalScore={this.totalScore}
           />
+        );
         break;
     }
 
@@ -161,17 +167,23 @@ class App extends React.Component {
   }
 
   render() {
-    const currentScreen = this.screenSelector(this.state.screen);
+    const {
+      screen,
+      roomName,
+      rooms,
+    } = this.state;
+    const currentScreen = this.screenSelector(screen);
 
     return (
       <div className={style.root}>
         {
-          Object.keys(this.totalScore).length > 0 &&
-          <Scoreboard
-            roomName={this.state.roomName}
-            rooms={this.state.rooms}
-            totalScore={this.totalScore}
-          />
+          Object.keys(this.totalScore).length > 0 && (
+            <Scoreboard
+              roomName={roomName}
+              rooms={rooms}
+              totalScore={this.totalScore}
+            />
+          )
         }
         {currentScreen}
       </div>

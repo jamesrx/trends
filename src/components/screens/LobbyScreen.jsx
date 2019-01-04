@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import screens from '../../screenTypes';
 
 class LobbyScreen extends React.Component {
@@ -15,50 +16,74 @@ class LobbyScreen extends React.Component {
   }
 
   componentDidMount = () => {
-    this.props.socket.on('player.duplicateRoomName', () => {
+    const {
+      socket,
+      updateGameState,
+    } = this.props;
+
+    socket.on('player.duplicateRoomName', () => {
       this.setState({ duplicateRoomName: true });
     });
 
-    this.props.socket.on('player.invalidRoomName', () => {
+    socket.on('player.invalidRoomName', () => {
       this.setState({ invalidRoomName: true });
     });
 
-    this.props.socket.on('player.acceptedRoomName', () => {
-      this.props.updateGameState({
+    socket.on('player.acceptedRoomName', () => {
+      const { newRoomName } = this.state;
+
+      updateGameState({
         screen: screens.ROOM,
-        roomName: this.state.newRoomName,
+        roomName: newRoomName,
         isLeader: true,
       });
     });
   }
 
   componentWillUnmount = () => {
-    this.props.socket.off('player.duplicateRoomName');
-    this.props.socket.off('player.invalidRoomName');
-    this.props.socket.off('player.acceptedRoomName');
+    const { socket } = this.props;
+
+    socket.off('player.duplicateRoomName');
+    socket.off('player.invalidRoomName');
+    socket.off('player.acceptedRoomName');
   }
 
   joinRoom = (event) => {
+    const {
+      state,
+      updateGameState,
+      socket,
+    } = this.props;
     const roomNameToJoin = event.target.value;
     const enteredPassword = event.target.dataset.password || '';
 
-    if (this.props.state.rooms[roomNameToJoin].password === enteredPassword) {
-      this.props.updateGameState({
+    if (state.rooms[roomNameToJoin].password === enteredPassword) {
+      updateGameState({
         screen: screens.ROOM,
         roomName: roomNameToJoin,
       });
-      this.props.socket.emit('joinRoom', roomNameToJoin, this.props.state.username);
+      socket.emit('joinRoom', roomNameToJoin, state.username);
     } else {
-      alert ('Wrong password!');
+      alert('Wrong password!');
     }
   }
 
   createRoom = () => {
-    this.props.socket.emit(
+    const {
+      socket,
+      state,
+    } = this.props;
+
+    const {
+      newRoomName,
+      newRoomPassword,
+    } = this.state;
+
+    socket.emit(
       'createRoom',
-      this.props.state.username,
-      this.state.newRoomName,
-      this.state.newRoomPassword
+      state.username,
+      newRoomName,
+      newRoomPassword,
     );
   }
 
@@ -69,58 +94,133 @@ class LobbyScreen extends React.Component {
   onNewRoomNameChange = (event) => {
     const newRoomName = event.target.value;
     const trimmedNewRoomName = newRoomName.trim();
-    let invalidRoomName = trimmedNewRoomName.length < 3 || trimmedNewRoomName.length > 20;
+    const invalidRoomName = trimmedNewRoomName.length < 3 || trimmedNewRoomName.length > 20;
 
     this.setState({
       newRoomName,
       invalidRoomName,
-      duplicateRoomName: false
+      duplicateRoomName: false,
     });
   }
 
   onJoinRoomPasswordChange = (event) => {
     this.setState({
       joinRoomPassword: {
-        [event.target.dataset.room]: event.target.value
-      }
+        [event.target.dataset.room]: event.target.value,
+      },
     });
   }
 
   render() {
-    const roomList = Object.keys(this.props.state.rooms);
+    const {
+      state,
+      maxPlayersPerRoom,
+    } = this.props;
+
+    const {
+      joinRoomPassword,
+      newRoomName,
+      newRoomPassword,
+      invalidRoomName,
+      duplicateRoomName,
+    } = this.state;
+
+    const roomList = Object.keys(state.rooms);
 
     return (
       <>
-        <p>Welcome to the game lobby <b>{this.props.state.username}</b>!</p>
-        {roomList.length > 0 && roomList.some(room => !this.props.state.rooms[room].hasStarted)
-          ? <div>
-            <h3>Join a game:</h3>
-            <ul>
-              {
-                roomList.map((room) => (
-                  !this.props.state.rooms[room].hasStarted &&
-                  <li key={room}>
-                    {room}
-                    {this.props.state.rooms[room].password ? <input type="password" value={this.state.joinRoomPassword[room]} data-room={room} onChange={this.onJoinRoomPasswordChange} /> : ''}
-                    {(this.props.state.rooms[room].players.length < this.props.maxPlayersPerRoom) && <button type="button" value={room} data-password={this.state.joinRoomPassword[room]} onClick={this.joinRoom}>Join</button>}
-                  </li>
-                ))
-              }
-            </ul>
-          </div>
+        <p>
+          Welcome to the game lobby
+          <b>{state.username}</b>
+          !
+        </p>
+
+        {roomList.length > 0 && roomList.some(room => !state.rooms[room].hasStarted)
+          ? (
+            <div>
+              <h3>Join a game:</h3>
+              <ul>
+                {
+                  roomList.map(room => (
+                    !state.rooms[room].hasStarted && (
+                      <li key={room}>
+                        {room}
+                        {
+                          state.rooms[room].password
+                            ? (
+                              <input
+                                type="password"
+                                value={joinRoomPassword[room]}
+                                data-room={room}
+                                onChange={this.onJoinRoomPasswordChange}
+                              />
+                            )
+                            : ''
+                        }
+                        {
+                          (state.rooms[room].players.length < maxPlayersPerRoom) && (
+                            <button
+                              type="button"
+                              value={room}
+                              data-password={joinRoomPassword[room]}
+                              onClick={this.joinRoom}
+                            >
+                              Join
+                            </button>
+                          )
+                        }
+                      </li>
+                    )
+                  ))
+                }
+              </ul>
+            </div>
+          )
           : <h3>No games currently open</h3>
         }
         <div>
           <h3>Start a room:</h3>
-          Name: <input type="text" value={this.state.newRoomName} onChange={this.onNewRoomNameChange} /><br />
-          Password: <input type="password" value={this.state.newRoomPassword} onChange={this.onNewRoomPasswordChange} /> (Optional)<br />
-          <button disabled={this.state.invalidRoomName || this.state.duplicateRoomName ? 'disabled' : ''} type="button" onClick={this.createRoom}>Create</button>
-          {this.state.invalidRoomName && <div>Enter a room name between 3-20 characters</div>}
-          {this.state.duplicateRoomName && <div>That room name's already in use</div>}
+
+          <p>
+            Name:
+            <input
+              type="text"
+              value={newRoomName}
+              onChange={this.onNewRoomNameChange}
+            />
+          </p>
+
+          <p>
+            Password:
+            <input
+              type="password"
+              value={newRoomPassword}
+              onChange={this.onNewRoomPasswordChange}
+            />
+            (Optional)
+          </p>
+
+          <button
+            disabled={invalidRoomName || duplicateRoomName ? 'disabled' : ''}
+            type="button"
+            onClick={this.createRoom}
+          >
+            Create
+          </button>
+
+          {invalidRoomName && <div>Enter a room name between 3-20 characters</div>}
+          {duplicateRoomName && <div>That room name is already in use</div>}
         </div>
       </>
     );
   }
 }
+
+LobbyScreen.propTypes = {
+  socket: PropTypes.object.isRequired,
+  updateGameState: PropTypes.func.isRequired,
+  state: PropTypes.object.isRequired,
+  maxPlayersPerRoom: PropTypes.number.isRequired,
+};
 
 export default LobbyScreen;
