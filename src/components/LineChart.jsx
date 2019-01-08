@@ -10,6 +10,10 @@ class LineChart extends React.Component {
   }
 
   getLineChartData = (fullResults, lastRound) => {
+    if (!fullResults.length) {
+      return [];
+    }
+
     const chartData = fullResults.map(dataPoint => (
       [
         dataPoint.formattedAxisTime,
@@ -69,11 +73,17 @@ class LineChart extends React.Component {
     };
 
     return (
-      <Chart
-        visualization="LineChart"
-        data={lineChartData}
-        options={options}
-      />
+      <>
+        {
+          (lineChartData.length > 0) && (
+            <Chart
+              visualization="LineChart"
+              data={lineChartData}
+              options={options}
+            />
+          )
+        }
+      </>
     );
   }
 }

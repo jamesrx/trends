@@ -8,7 +8,6 @@ import answerFieldStyle from '../../styles/answerField.scss';
 class AnswerScreen extends React.Component {
   constructor(props) {
     super(props);
-    const { state } = this.props;
     this.state = {
       timeLeft: 15, // time to answer, in seconds
       submittedAnswer: false,
@@ -16,7 +15,8 @@ class AnswerScreen extends React.Component {
       duplicateAnswer: false,
       invalidAnswer: true,
     };
-
+    
+    const { state } = this.props;
     this.keyword = '';
     this.roundNum = state.rounds.length;
     this.roundTimer = null;
@@ -30,6 +30,8 @@ class AnswerScreen extends React.Component {
       updateTotalScore,
       updateGameState,
     } = this.props;
+
+    this.termRefs.before.focus();
 
     socket.on('room.submitAnswer', (rounds, fullResults) => {
       // all players' answers are in

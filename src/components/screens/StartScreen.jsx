@@ -82,14 +82,14 @@ class StartScreen extends React.Component {
 
     return (
       <>
-        <div className={style.logo}>
+        {/* <div className={style.logo}>
           <div className={style.trends}>
             {'Trends'.split('').map(letter => (
               <span key={letter} className={style[letter]}>{letter}</span>
             ))}
           </div>
           <img className={style.arrow} src="/src/trends-arrow.png" alt="Arrow Logo" />
-        </div>
+        </div> */}
 
         <p>
           Enter your name:

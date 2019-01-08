@@ -9,6 +9,7 @@ class EndScreen extends React.Component {
       state,
     } = this.props;
 
+    // game is over, so delete the room on client & server
     socket.emit('endGame', state.roomName);
     state.rooms[state.roomName] = null;
     delete state.rooms[state.roomName];
@@ -36,6 +37,7 @@ class EndScreen extends React.Component {
       updateGameState,
     } = this.props;
 
+    // clear all client's data except their username
     clearTotalScore();
     updateGameState({
       screen: screens.LOBBY,
@@ -68,16 +70,16 @@ class EndScreen extends React.Component {
       }
 
       return (
-        <>
+        <h2>
           {`${title}: ${formattedWinners}`}
-        </>
+        </h2>
       );
     };
 
     return (
       <>
         <h1>Game Over!</h1>
-        <h2>{renderWinner()}</h2>
+        {renderWinner()}
         <button
           type="button"
           onClick={this.playAgain}
