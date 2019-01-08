@@ -12,6 +12,7 @@ class StartScreen extends React.Component {
       duplicateUsername: false,
       invalidUsername: true,
     };
+    this.usernameRef = React.createRef();
   }
 
   componentDidMount = () => {
@@ -19,6 +20,8 @@ class StartScreen extends React.Component {
       socket,
       updateGameState,
     } = this.props;
+
+    this.usernameRef.current.focus();
 
     socket.on('player.duplicateUsername', () => {
       this.setState({ duplicateUsername: true });
@@ -52,6 +55,12 @@ class StartScreen extends React.Component {
     socket.emit('submitUsername', username);
   }
 
+  submitUsernameOnKeyPress = (event) => {
+    if (event.which === 13) {
+      this.submitUsername();
+    }
+  }
+
   onUsernameChange = (event) => {
     const username = event.target.value;
     const trimmedUsernameLength = username.trim().length;
@@ -73,14 +82,14 @@ class StartScreen extends React.Component {
 
     return (
       <>
-        {/* <div className={style.logo}>
+        <div className={style.logo}>
           <div className={style.trends}>
             {'Trends'.split('').map(letter => (
               <span key={letter} className={style[letter]}>{letter}</span>
             ))}
           </div>
           <img className={style.arrow} src="/src/trends-arrow.png" alt="Arrow Logo" />
-        </div> */}
+        </div>
 
         <p>
           Enter your name:
@@ -89,6 +98,8 @@ class StartScreen extends React.Component {
             className={invalidUsername ? style.invalid : null}
             value={username}
             onChange={this.onUsernameChange}
+            onKeyDown={this.submitUsernameOnKeyPress}
+            ref={this.usernameRef}
           />
         </p>
 

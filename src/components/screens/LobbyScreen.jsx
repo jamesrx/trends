@@ -13,6 +13,7 @@ class LobbyScreen extends React.Component {
       duplicateRoomName: false,
       invalidRoomName: true,
     };
+    this.roomNameRef = React.createRef();
   }
 
   componentDidMount = () => {
@@ -20,6 +21,8 @@ class LobbyScreen extends React.Component {
       socket,
       updateGameState,
     } = this.props;
+
+    this.roomNameRef.current.focus();
 
     socket.on('player.duplicateRoomName', () => {
       this.setState({ duplicateRoomName: true });
@@ -48,14 +51,14 @@ class LobbyScreen extends React.Component {
     socket.off('player.acceptedRoomName');
   }
 
-  joinRoom = (event) => {
+  joinRoom = (event, roomName = '', password = '') => {
     const {
       state,
       updateGameState,
       socket,
     } = this.props;
-    const roomNameToJoin = event.target.value;
-    const enteredPassword = event.target.dataset.password || '';
+    const roomNameToJoin = roomName || event.target.value;
+    const enteredPassword = password || event.target.dataset.password || '';
 
     if (state.rooms[roomNameToJoin].password === enteredPassword) {
       updateGameState({
@@ -65,6 +68,12 @@ class LobbyScreen extends React.Component {
       socket.emit('joinRoom', roomNameToJoin, state.username);
     } else {
       alert('Wrong password!');
+    }
+  }
+
+  joinRoomOnKeyPress = (event) => {
+    if (event.which === 13) {
+      this.joinRoom(event, event.target.dataset.room, event.target.value);
     }
   }
 
@@ -85,6 +94,12 @@ class LobbyScreen extends React.Component {
       newRoomName,
       newRoomPassword,
     );
+  }
+
+  createRoomOnKeyPress = (event) => {
+    if (event.which === 13) {
+      this.createRoom();
+    }
   }
 
   onNewRoomPasswordChange = (event) => {
@@ -153,6 +168,7 @@ class LobbyScreen extends React.Component {
                                 value={joinRoomPassword[room]}
                                 data-room={room}
                                 onChange={this.onJoinRoomPasswordChange}
+                                onKeyDown={this.joinRoomOnKeyPress}
                               />
                             )
                             : ''
@@ -187,6 +203,8 @@ class LobbyScreen extends React.Component {
               type="text"
               value={newRoomName}
               onChange={this.onNewRoomNameChange}
+              onKeyDown={this.createRoomOnKeyPress}
+              ref={this.roomNameRef}
             />
           </p>
 
@@ -196,6 +214,7 @@ class LobbyScreen extends React.Component {
               type="password"
               value={newRoomPassword}
               onChange={this.onNewRoomPasswordChange}
+              onKeyDown={this.createRoomOnKeyPress}
             />
             (Optional)
           </p>

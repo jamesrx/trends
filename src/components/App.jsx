@@ -92,6 +92,10 @@ class App extends React.Component {
     });
   }
 
+  clearTotalScore = () => {
+    this.totalScore = {};
+  }
+
   setFullResults = (fullResults) => {
     this.fullResults = fullResults;
   }
@@ -157,7 +161,9 @@ class App extends React.Component {
       case screens.END:
         nextScreen = (
           <EndScreen
+            {...defaultProps}
             totalScore={this.totalScore}
+            clearTotalScore={this.clearTotalScore}
           />
         );
         break;

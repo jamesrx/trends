@@ -3,10 +3,11 @@ const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 const googleTrends = require('google-trends-api');
-const Start = require('./server/Start');
-const Lobby = require('./server/Lobby');
-const Room = require('./server/Room');
-const Answer = require('./server/Answer');
+const Start = require('./Start');
+const Lobby = require('./Lobby');
+const Room = require('./Room');
+const Answer = require('./Answer');
+const End = require('./End');
 
 server.listen(3000);
 console.log('working on 3000');
@@ -32,14 +33,6 @@ app.get('/trends', function (req, res) {
     console.error('Error with interestOverTime call', err);
   });
 });
-
-// setInterval(() => {
-//   const used = process.memoryUsage();
-//   for (let key in used) {
-//     console.log(`${key} ${Math.round(used[key] / 1024 / 1024 * 100) / 100} MB`);
-//   }
-//   console.log('------------');
-// }, 3000);
 
 (function() {
   const rooms = {};
@@ -75,7 +68,7 @@ app.get('/trends', function (req, res) {
       Room.startGame(rooms, io, ...args);
     });
     socket.on('updateSettings', (...args) => {
-      Room.updateSettings(rooms, socket, ...args);
+      Room.updateSettings(...defaultArgs, ...args);
     });
 
     // Answer
@@ -86,6 +79,11 @@ app.get('/trends', function (req, res) {
     // Results
     socket.on('startNextRound', (roomName) => {
       io.to(roomName).emit('room.startNextRound');
+    });
+
+    // End
+    socket.on('endGame', (...args) => {
+      End.deleteRoom(rooms, ...args);
     });
 
   });

@@ -53,11 +53,11 @@ class LineChart extends React.Component {
         },
       },
       hAxis: {
-        showTextEvery: (this.numEntries / 2) - 1,
+        showTextEvery: parseInt(this.numEntries / 2, 10) - 1,
         maxTextLines: 1,
       },
       lineWidth: 3,
-      height: 350,
+      height: 250,
       chartArea: {
         width: '100%',
         left: 35,

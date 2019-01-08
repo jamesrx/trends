@@ -22,10 +22,11 @@ exports.startGame = (rooms, io, roomName) => {
   io.emit('all.updateRooms', rooms);
 };
 
-exports.updateSettings = (rooms, socket, roomName, topic, numRounds) => {
+exports.updateSettings = (rooms, socket, io, roomName, topic, numRounds) => {
   rooms[roomName].topic = topic;
   rooms[roomName].numRounds = numRounds;
   socket.to(roomName).emit('room.updateSettings', topic, numRounds);
+  io.emit('all.updateRooms', rooms);
 };
 
 exports.disconnect = (rooms, socket, io, players) => {

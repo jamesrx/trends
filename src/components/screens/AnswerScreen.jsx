@@ -1,6 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import screens from '../../screenTypes';
+import AnswerField from '../AnswerField';
+// import style from '../../styles/answerScreen.scss';
+import answerFieldStyle from '../../styles/answerField.scss';
 
 class AnswerScreen extends React.Component {
   constructor(props) {
@@ -11,7 +14,7 @@ class AnswerScreen extends React.Component {
       submittedAnswer: false,
       acceptedAnswer: false,
       duplicateAnswer: false,
-      invalidAnswer: false,
+      invalidAnswer: true,
     };
 
     this.keyword = '';
@@ -85,6 +88,14 @@ class AnswerScreen extends React.Component {
       state,
     } = this.props;
 
+    // remove focus so user can't type in answer field after submitting
+    document.activeElement.blur();
+
+    // disable all answer fields
+    Object.keys(this.termRefs).forEach((ref) => {
+      this.termRefs[ref].classList.add(answerFieldStyle.disabled);
+    });
+
     this.setState({
       submittedAnswer: true,
       duplicateAnswer: false,
@@ -103,30 +114,45 @@ class AnswerScreen extends React.Component {
   submitAnswer = (event) => {
     event.preventDefault();
 
-    const activeInputName = this.termRefs.before.classList.contains('disabled') ? 'after' : 'before';
+    const activeInputName = this.termRefs.before.classList.contains(answerFieldStyle.disabled) ? 'after' : 'before';
     const term = this.termRefs[activeInputName].textContent.trim();
     const fullTerm = activeInputName === 'before' ? `${term} ${this.keyword}` : `${this.keyword} ${term}`;
 
     this.sendAnswerData(term, fullTerm);
   }
 
-  toggleDisabledInput = (el) => {
-    const oppositeInput = this.termRefs[el.classList.contains('before') ? 'after' : 'before'];
-
-    el.classList.remove('disabled');
-    oppositeInput.classList.add('disabled');
-  }
-
   validateAnswer = (event) => {
+    if (event.which === 13) event.preventDefault();
     const answerLength = event.target.innerText.trim().length;
     const invalidAnswer = answerLength < 3 || answerLength > 20;
 
     this.setState({ invalidAnswer });
+
+    return !invalidAnswer;
   }
 
-  onFocusHandler = (event) => {
-    this.validateAnswer(event);
-    this.toggleDisabledInput(event.target);
+  submitAnswerOnKeyPress = (event) => {
+    if (event.which === 13 && this.validateAnswer(event)) {
+      this.submitAnswer(event);
+    }
+  }
+
+  toggleDisabledInput = (el) => {
+    const oppositeInput = this.termRefs[el.classList.contains('before') ? 'after' : 'before'];
+
+    el.classList.remove(answerFieldStyle.disabled);
+    oppositeInput.classList.add(answerFieldStyle.disabled);
+  }
+
+  focusHandler = (event) => {
+    const { submittedAnswer } = this.state;
+
+    if (submittedAnswer) {
+      document.activeElement.blur();
+    } else {
+      this.validateAnswer(event);
+      this.toggleDisabledInput(event.target);
+    }
   }
 
   render() {
@@ -146,11 +172,11 @@ class AnswerScreen extends React.Component {
       duplicateAnswer,
     } = this.state;
 
-    const termInput = {
-      borderBottom: '1px solid black',
-      display: 'inline-block',
-      minWidth: '10px',
-      margin: '0px 3px',
+    const answerProps = {
+      refs: this.termRefs,
+      onKeyUp: this.validateAnswer,
+      onKeyDown: this.submitAnswerOnKeyPress,
+      onFocus: this.focusHandler,
     };
 
     return (
@@ -161,6 +187,7 @@ class AnswerScreen extends React.Component {
           /
           {state.rooms[state.roomName].numRounds}
         </h3>
+
         {!submittedAnswer && (
           <div>
             You have
@@ -168,37 +195,37 @@ class AnswerScreen extends React.Component {
             seconds to answer!
           </div>
         )}
-        <form onSubmit={this.submitAnswer}>
-          <div>
-            Search term:
-            <span
-              contentEditable="true"
-              name="terms"
-              className="before"
-              style={termInput}
-              ref={(el) => { this.termRefs.before = el; }}
-              onInput={this.validateAnswer}
-              onFocus={this.onFocusHandler}
-            />
-            {this.keyword}
-            <span
-              contentEditable="true"
-              name="terms"
-              className="after"
-              style={termInput}
-              ref={(el) => { this.termRefs.after = el; }}
-              onInput={this.validateAnswer}
-              onFocus={this.onFocusHandler}
-            />
-          </div>
 
-          {invalidAnswer && <p>Answer must be between 3 and 20 characters long</p>}
-          {!submittedAnswer && !invalidAnswer && <button type="submit">Go!</button>}
-          <p>
-            {acceptedAnswer ? 'Waiting on other players to answer' : ''}
-          </p>
-          {duplicateAnswer && <p>Another player already answered with that. Try another term.</p>}
-        </form>
+        <div>
+          Search term:
+          <AnswerField
+            type="before"
+            {...answerProps}
+          />
+
+          {this.keyword}
+
+          <AnswerField
+            type="after"
+            {...answerProps}
+          />
+        </div>
+
+        {invalidAnswer && <p>Answer must be between 3 and 20 characters long</p>}
+
+        {
+          !submittedAnswer && !invalidAnswer && (
+            <button
+              type="button"
+              onClick={this.submitAnswer}
+            >
+              Submit Answer!
+            </button>
+          )
+        }
+
+        {acceptedAnswer && <p>Waiting on other players to answer</p>}
+        {duplicateAnswer && <p>Another player already answered with that. Try another term.</p>}
       </>
     );
   }

@@ -10,7 +10,7 @@ class RoomScreen extends React.Component {
       state,
     } = this.props;
 
-    this.topicWasSet = false;
+    this.roomSettingsSaved = false;
     this.topics = Object.keys(topics);
     this.state = {
       topic: state.rooms[state.roomName].topic || this.topics[0],
@@ -37,6 +37,7 @@ class RoomScreen extends React.Component {
     });
 
     socket.on('room.updateSettings', (topic, numRounds) => {
+      this.roomSettingsSaved = true;
       this.setState({ topic, numRounds });
     });
   }
@@ -72,7 +73,6 @@ class RoomScreen extends React.Component {
     } = this.props;
     const { topic } = this.state;
 
-    this.topicWasSet = true;
     this.setState({ numRounds });
     socket.emit('updateSettings', state.roomName, topic, numRounds);
   }
@@ -86,7 +86,6 @@ class RoomScreen extends React.Component {
     const topic = event.target.value;
     const numRounds = topics[topic].length;
 
-    this.topicWasSet = true;
     this.setState({ topic, numRounds });
     socket.emit('updateSettings', state.roomName, topic, numRounds);
   }
@@ -102,7 +101,7 @@ class RoomScreen extends React.Component {
       numRounds,
     } = this.state;
 
-    if (!this.topicWasSet) {
+    if (!this.roomSettingsSaved) {
       socket.emit('updateSettings', state.roomName, topic, numRounds);
     }
 
