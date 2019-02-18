@@ -51,7 +51,7 @@ class App extends React.Component {
       */
     };
 
-    // this.socket = io.connect('https://simplistic-chatter.glitch.me/');
+    // this.socket = io.connect('https://trends-game.glitch.me/');
     this.socket = io.connect('http://localhost:3000');
     this.maxPlayersPerRoom = 5;
     this.fullResults = [];
