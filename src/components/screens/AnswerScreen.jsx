@@ -15,7 +15,7 @@ class AnswerScreen extends React.Component {
       duplicateAnswer: false,
       invalidAnswer: true,
     };
-    
+
     const { state } = this.props;
     this.keyword = '';
     this.roundNum = state.rounds.length;
