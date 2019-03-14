@@ -22,7 +22,7 @@ const isTermDuplicate = (term, round) => {
   // allow blank terms to be duplicates
   if (term !== '') {
     Object.keys(round).forEach((player) => {
-      if (term === round[player].term && term !== '') {
+      if (term.toLowerCase() === round[player].term.toLowerCase() && term !== '') {
         duplicate = true;
       }
     });

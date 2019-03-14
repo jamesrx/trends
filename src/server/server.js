@@ -11,6 +11,17 @@ const End = require('./End');
 
 server.listen(3000, () => { console.log('listening on 3000'); });
 
+// server setup for hosting on glitch.com
+// server.listen(process.env.PORT);
+
+// app.use(function (req, res, next) {
+//   res.header('Access-Control-Allow-Origin', '*');
+//   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+//   next();
+// });
+// app.use(express.static(__dirname + '/'));
+
+// endpoint for testing the google trends API
 app.get('/trends', function (req, res) {
   const terms = req.query.terms.split(',');
 
