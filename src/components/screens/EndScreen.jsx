@@ -11,7 +11,6 @@ class EndScreen extends React.Component {
 
     // game is over, so delete the room on client & server
     socket.emit('endGame', state.roomName);
-    state.rooms[state.roomName] = null;
     delete state.rooms[state.roomName];
   }
 

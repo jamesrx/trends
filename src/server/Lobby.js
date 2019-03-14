@@ -45,6 +45,5 @@ exports.disconnect = (players, socketId) => {
       return players[player] === socketId;
     });
 
-    players[player] = null;
     return delete players[player];
 }

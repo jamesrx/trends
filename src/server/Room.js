@@ -7,7 +7,6 @@ exports.leaveRoom = (rooms, socket, io, roomName, username) => {
     currentRoom.players.splice(playerIndex, 1); // remove player
 
     if (isLeader) {
-      rooms[roomName] = null;
       delete rooms[roomName];
       io.to(roomName).emit('room.leaderLeft');
     }
@@ -43,7 +42,6 @@ exports.disconnect = (rooms, socket, io, players) => {
       if (player.socketId === socket.id) {
         if (room.leader === player.username) {
           // player that disconnected was leader, so delete the room
-          rooms[roomName] = null;
           delete rooms[roomName];
           io.to(roomName).emit('room.leaderLeft');
         } else {
@@ -54,7 +52,6 @@ exports.disconnect = (rooms, socket, io, players) => {
         io.emit('all.updateRooms', rooms);
 
         // remove from players map
-        players[player.username] = null;
         return delete players[player.username];
       }
     }
