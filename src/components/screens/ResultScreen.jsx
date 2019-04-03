@@ -54,6 +54,7 @@ class ResultScreen extends React.Component {
       <>
         <h3>
           Results from round
+          {' '}
           {this.currentRound}
           :
         </h3>
@@ -61,15 +62,11 @@ class ResultScreen extends React.Component {
           {
             Object.keys(lastRound).map(player => (
               <li key={player}>
-                {player}
-                :
+                {`${player}: `}
                 {lastRound[player].fullTerm
                   ? `guessed ${lastRound[player].fullTerm}`
                   : 'didn\'t answer in time'}
-                (
-                {lastRound[player].points}
-                points
-                )
+                {` (${lastRound[player].points} points)`}
               </li>
             ))
           }
@@ -87,18 +84,22 @@ class ResultScreen extends React.Component {
         />
 
         <h3>
-          Rounds left:
+          {'Rounds left: '}
           {(state.rooms[state.roomName].numRounds - this.currentRound)}
         </h3>
         {
-          state.isLeader && (
-            <button
-              type="button"
-              onClick={this.startNextRound}
-            >
-              Next
-            </button>
-          )
+          state.isLeader
+            ? (
+              <button
+                type="button"
+                onClick={this.startNextRound}
+              >
+                Next
+              </button>
+            )
+            : (
+              <p>Waiting on the room creator to start the next round</p>
+            )
         }
       </>
     );

@@ -7,18 +7,20 @@ const Scoreboard = ({
   totalScore,
 }) => (
   <div>
-    <h3>Scoreboard:</h3>
-    <ul>
+    <h3>Leaderboard:</h3>
+    <ol>
       {
-        rooms[roomName].players.map(player => (
-          <li key={player.socketId}>
-            {player.username}
-            :
-            {totalScore[player.username]}
-          </li>
-        ))
+        rooms[roomName].players
+          .sort((playerA, playerB) => totalScore[playerB.username] - totalScore[playerA.username])
+          .map(player => (
+            <li key={player.socketId}>
+              {player.username}
+              {': '}
+              {totalScore[player.username]}
+            </li>
+          ))
       }
-    </ul>
+    </ol>
   </div>
 );
 

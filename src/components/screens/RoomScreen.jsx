@@ -142,15 +142,13 @@ class RoomScreen extends React.Component {
         }
         return (<div>Waiting for more players</div>);
       }
-      return (<div>Waiting for the room leader to start the game</div>);
+      return (<div>Waiting for the room&apos;s creator to start the game</div>);
     };
 
     return (
       <>
         <p>
-          You&apos;re in room
-          {state.roomName}
-          !
+          {`You're in room ${state.roomName}!`}
           <button
             type="button"
             onClick={this.leaveRoom}
@@ -182,11 +180,7 @@ class RoomScreen extends React.Component {
           </div>
         }
 
-        <h3>
-          Players (
-          {`${playersInRoom.length} / ${maxPlayersPerRoom}`}
-          ):
-        </h3>
+        <h3>{`Players (${playersInRoom.length} / ${maxPlayersPerRoom}):`}</h3>
 
         <ul>
           {

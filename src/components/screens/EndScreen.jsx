@@ -55,13 +55,16 @@ class EndScreen extends React.Component {
       let lastWinner;
 
       switch (winners.length) {
+        // single winner
         case 1:
           title = 'Winner';
           [formattedWinners] = winners;
           break;
+        // two-way tie
         case 2:
           formattedWinners = winners.join(' and ');
           break;
+        // multi-way tie
         default:
           lastWinner = winners.pop();
           formattedWinners = `${winners.join(', ')}, and ${lastWinner}`;

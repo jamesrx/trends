@@ -9,7 +9,7 @@ class AnswerScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      timeLeft: 15, // time to answer, in seconds
+      timeLeft: 60, // time to answer, in seconds
       submittedAnswer: false,
       acceptedAnswer: false,
       duplicateAnswer: false,
@@ -58,17 +58,19 @@ class AnswerScreen extends React.Component {
     });
 
     socket.on('player.acceptedAnswer', () => {
-      clearInterval(this.roundTimer);
       this.setState({ acceptedAnswer: true });
     });
 
     this.roundTimer = setInterval(() => {
-      const { timeLeft } = this.state;
+      const {
+        timeLeft,
+        acceptedAnswer,
+      } = this.state;
       const newTimeLeft = timeLeft - 1;
 
       if (newTimeLeft) {
         this.setState({ timeLeft: newTimeLeft });
-      } else {
+      } else if (!acceptedAnswer) {
         this.sendAnswerData();
       }
     }, 1000); // count down every second
@@ -190,16 +192,18 @@ class AnswerScreen extends React.Component {
           {state.rooms[state.roomName].numRounds}
         </h3>
 
-        {!submittedAnswer && (
-          <div>
-            You have
+        {
+          <p>
+            {'Round ends in '}
             <b>{timeLeft}</b>
-            seconds to answer!
-          </div>
-        )}
+            {timeLeft === 1 ? ' second' : ' seconds'}
+          </p>
+        }
+
+        <p>Create a trending term by adding a word either before or after the starting word!</p>
+        <p>Click on the space before or after the starting word and start typing</p>
 
         <div>
-          Search term:
           <AnswerField
             type="before"
             {...answerProps}

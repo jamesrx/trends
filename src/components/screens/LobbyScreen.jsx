@@ -144,16 +144,12 @@ class LobbyScreen extends React.Component {
 
     return (
       <>
-        <p>
-          Welcome to the game lobby
-          <b>{state.username}</b>
-          !
-        </p>
+        <p>You can join an open room, or start your own</p>
 
         {roomList.length > 0 && roomList.some(room => !state.rooms[room].hasStarted)
           ? (
             <div>
-              <h3>Join a game:</h3>
+              <h3>Join a room:</h3>
               <ul>
                 {
                   roomList.map(room => (
@@ -161,17 +157,15 @@ class LobbyScreen extends React.Component {
                       <li key={room}>
                         {room}
                         {
-                          state.rooms[room].password
-                            ? (
-                              <input
-                                type="password"
-                                value={joinRoomPassword[room]}
-                                data-room={room}
-                                onChange={this.onJoinRoomPasswordChange}
-                                onKeyDown={this.joinRoomOnKeyPress}
-                              />
-                            )
-                            : ''
+                          state.rooms[room].password && (
+                            <input
+                              type="password"
+                              value={joinRoomPassword[room]}
+                              data-room={room}
+                              onChange={this.onJoinRoomPasswordChange}
+                              onKeyDown={this.joinRoomOnKeyPress}
+                            />
+                          )
                         }
                         {
                           (state.rooms[room].players.length < maxPlayersPerRoom) && (
@@ -192,7 +186,7 @@ class LobbyScreen extends React.Component {
               </ul>
             </div>
           )
-          : <h3>No games currently open</h3>
+          : <h3>No rooms currently open</h3>
         }
         <div>
           <h3>Start a room:</h3>

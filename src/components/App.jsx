@@ -175,6 +175,7 @@ class App extends React.Component {
   render() {
     const {
       screen,
+      username,
       roomName,
       rooms,
     } = this.state;
@@ -182,6 +183,14 @@ class App extends React.Component {
 
     return (
       <div className={style.root}>
+        {
+          username && (
+            <p>
+              {'Playing as: '}
+              <b>{username}</b>
+            </p>
+          )
+        }
         {
           Object.keys(this.totalScore).length > 0 && (
             <Scoreboard
