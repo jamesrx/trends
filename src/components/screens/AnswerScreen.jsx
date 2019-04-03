@@ -129,6 +129,7 @@ class AnswerScreen extends React.Component {
 
   validateAnswer = (event) => {
     if (event.which === 13) event.preventDefault();
+
     const answerLength = event.target.innerText.trim().length;
     const invalidAnswer = answerLength < this.minAnswerLength
       || answerLength > this.maxAnswerLength;
@@ -203,7 +204,7 @@ class AnswerScreen extends React.Component {
           </p>
         }
 
-        <p>Create a trending term by adding a word either before or after the starting word!</p>
+        <p>Create a search term by adding a word before or after the starting word!</p>
         <p>Click on the space before or after the starting word and start typing</p>
 
         <div>
