@@ -14,6 +14,8 @@ class LobbyScreen extends React.Component {
       invalidRoomName: true,
     };
     this.roomNameRef = React.createRef();
+    this.minRoomNameLength = 3;
+    this.maxRoomNameLength = 20;
   }
 
   componentDidMount = () => {
@@ -109,7 +111,8 @@ class LobbyScreen extends React.Component {
   onNewRoomNameChange = (event) => {
     const newRoomName = event.target.value;
     const trimmedNewRoomName = newRoomName.trim();
-    const invalidRoomName = trimmedNewRoomName.length < 3 || trimmedNewRoomName.length > 20;
+    const invalidRoomName = trimmedNewRoomName.length < this.minRoomNameLength
+      || trimmedNewRoomName.length > this.maxRoomNameLength;
 
     this.setState({
       newRoomName,
@@ -221,7 +224,11 @@ class LobbyScreen extends React.Component {
             Create
           </button>
 
-          {invalidRoomName && <div>Enter a room name between 3-20 characters</div>}
+          {invalidRoomName && (
+            <div>
+              {`Enter a room name between ${this.minRoomNameLength}-${this.maxRoomNameLength} characters`}
+            </div>
+          )}
           {duplicateRoomName && <div>That room name is already in use</div>}
         </div>
       </>

@@ -13,6 +13,8 @@ class StartScreen extends React.Component {
       invalidUsername: true,
     };
     this.usernameRef = React.createRef();
+    this.minUsernameLength = 3;
+    this.maxUsernameLength = 20;
   }
 
   componentDidMount = () => {
@@ -64,7 +66,8 @@ class StartScreen extends React.Component {
   onUsernameChange = (event) => {
     const username = event.target.value;
     const trimmedUsernameLength = username.trim().length;
-    const invalidUsername = trimmedUsernameLength < 3 || trimmedUsernameLength > 20;
+    const invalidUsername = trimmedUsernameLength < this.minUsernameLength
+      || trimmedUsernameLength > this.maxUsernameLength;
 
     this.setState({
       username,
@@ -111,7 +114,9 @@ class StartScreen extends React.Component {
           Connect
         </button>
 
-        {invalidUsername && <div>Enter a name between 3-20 characters</div>}
+        {invalidUsername && (
+          <div>{`Enter a name between ${this.minUsernameLength}-${this.maxUsernameLength} characters`}</div>
+        )}
         {duplicateUsername && <div>That name is already in use</div>}
       </>
     );

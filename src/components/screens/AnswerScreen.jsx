@@ -21,6 +21,8 @@ class AnswerScreen extends React.Component {
     this.roundNum = state.rounds.length;
     this.roundTimer = null;
     this.termRefs = {};
+    this.minAnswerLength = 3;
+    this.maxAnswerLength = 20;
   }
 
   componentDidMount = () => {
@@ -128,7 +130,8 @@ class AnswerScreen extends React.Component {
   validateAnswer = (event) => {
     if (event.which === 13) event.preventDefault();
     const answerLength = event.target.innerText.trim().length;
-    const invalidAnswer = answerLength < 3 || answerLength > 20;
+    const invalidAnswer = answerLength < this.minAnswerLength
+      || answerLength > this.maxAnswerLength;
 
     this.setState({ invalidAnswer });
 
@@ -217,7 +220,9 @@ class AnswerScreen extends React.Component {
           />
         </div>
 
-        {invalidAnswer && <p>Answer must be between 3 and 20 characters long</p>}
+        {invalidAnswer && (
+          <p>{`Answer must be between ${this.minAnswerLength} and ${this.maxAnswerLength} characters long`}</p>
+        )}
 
         {
           !submittedAnswer && !invalidAnswer && (
