@@ -53,10 +53,7 @@ class ResultScreen extends React.Component {
     return (
       <>
         <h3>
-          Results from round
-          {' '}
-          {this.currentRound}
-          :
+          {`Results from round ${this.currentRound}:`}
         </h3>
         <ul>
           {
@@ -84,8 +81,7 @@ class ResultScreen extends React.Component {
         />
 
         <h3>
-          {'Rounds left: '}
-          {(state.rooms[state.roomName].numRounds - this.currentRound)}
+          {`Rounds left: ${state.rooms[state.roomName].numRounds - this.currentRound}`}
         </h3>
         {
           state.isLeader

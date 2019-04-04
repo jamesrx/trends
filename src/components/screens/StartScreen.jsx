@@ -94,6 +94,18 @@ class StartScreen extends React.Component {
           <img className={style.arrow} src="/src/trends-arrow.png" alt="Arrow Logo" />
         </div>
 
+        <h3>Instructions</h3>
+        <p>
+          Create or join a room with 2-5 people to start a game
+          (or open the game in another tab to play by yourself)
+        </p>
+        <p>You&apos;ll be given a starting word related to the chosen topic</p>
+        <p>
+          Add a new word before or after the starting word to create a two word phrase
+          (your word can be anything, it doesn&apos;t nedd to be related to the topic)
+        </p>
+        <p>Your score is based on how popular the phrase is in Google</p>
+
         <p>
           Enter your name:
           <input

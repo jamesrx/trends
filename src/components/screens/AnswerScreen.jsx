@@ -190,10 +190,7 @@ class AnswerScreen extends React.Component {
     return (
       <>
         <h3>
-          Round:
-          {this.roundNum + 1}
-          /
-          {state.rooms[state.roomName].numRounds}
+          {`Round: ${this.roundNum + 1} / ${state.rooms[state.roomName].numRounds}`}
         </h3>
 
         {
@@ -204,8 +201,12 @@ class AnswerScreen extends React.Component {
           </p>
         }
 
-        <p>Create a search term by adding a word before or after the starting word!</p>
+        <p>Create a phrase by adding a word before or after the starting word!</p>
         <p>Click on the space before or after the starting word and start typing</p>
+        <p>
+          Tip: Your phrase doesn&apos;t have to be related to the topic &mdash;
+          it can be anything that would be popular in Google
+        </p>
 
         <div>
           <AnswerField
