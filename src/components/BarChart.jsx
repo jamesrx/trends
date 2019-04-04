@@ -40,12 +40,15 @@ class BarChart extends React.Component {
     const { lastRound } = this.props;
 
     return (
-      <Chart
-        visualization="ColumnChart"
-        packages={['bar']}
-        data={this.getBarChartData(lastRound)}
-        options={options}
-      />
+      <>
+        <h3>Current Trend</h3>
+        <Chart
+          visualization="ColumnChart"
+          packages={['bar']}
+          data={this.getBarChartData(lastRound)}
+          options={options}
+        />
+      </>
     );
   }
 }

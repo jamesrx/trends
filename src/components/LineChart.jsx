@@ -73,17 +73,16 @@ class LineChart extends React.Component {
     };
 
     return (
-      <>
-        {
-          (lineChartData.length > 0) && (
-            <Chart
-              visualization="LineChart"
-              data={lineChartData}
-              options={options}
-            />
-          )
-        }
-      </>
+      (lineChartData.length > 0) && (
+        <>
+          <h3>Trend Over Time</h3>
+          <Chart
+            visualization="LineChart"
+            data={lineChartData}
+            options={options}
+          />
+        </>
+      )
     );
   }
 }

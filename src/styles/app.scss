@@ -8,6 +8,16 @@
     display: flex;
     justify-content: center;
   }
+
+  .instructions {
+    font-size: 14px;
+    color: #404040;
+    margin: 1em 0;
+
+     li {
+       margin: 0.5em 0;
+     }
+  }
 }
 
 .root {
@@ -19,4 +29,10 @@
   margin: 10px;
   border: 1px solid #eaeaea;
   background: #fff;
+  color: #464646;
+  font-family: Helvetica, sans-serif  
+}
+
+.invalid {
+  color: red;
 }

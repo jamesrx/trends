@@ -80,7 +80,7 @@ class EndScreen extends React.Component {
 
     return (
       <>
-        <h1>Game Over!</h1>
+        <h3>Game Over!</h3>
         {renderWinner()}
         <button
           type="button"

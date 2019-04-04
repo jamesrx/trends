@@ -140,9 +140,9 @@ class RoomScreen extends React.Component {
             </button>
           );
         }
-        return (<div>Waiting for more players</div>);
+        return (<p>Waiting for more players</p>);
       }
-      return (<div>Waiting for the room&apos;s creator to start the game</div>);
+      return (<p>Waiting for the room&apos;s creator to start the game</p>);
     };
 
     return (
@@ -156,29 +156,28 @@ class RoomScreen extends React.Component {
             Leave Room
           </button>
         </p>
-        {
-          <div>
-            Topic:
-            <select
-              disabled={state.isLeader ? '' : 'disabled'}
-              value={topic}
-              onChange={this.onTopicChange}
-            >
-              {this.topics.map(topicEl => (
-                <option key={topicEl}>{topicEl}</option>
-              ))}
-            </select>
 
-            Rounds:
-            <select
-              disabled={state.isLeader ? '' : 'disabled'}
-              value={numRounds}
-              onChange={this.onNumRoundsChange}
-            >
-              {rounds}
-            </select>
-          </div>
-        }
+        <div>
+          Topic:
+          <select
+            disabled={state.isLeader ? '' : 'disabled'}
+            value={topic}
+            onChange={this.onTopicChange}
+          >
+            {this.topics.map(topicEl => (
+              <option key={topicEl}>{topicEl}</option>
+            ))}
+          </select>
+
+          Rounds:
+          <select
+            disabled={state.isLeader ? '' : 'disabled'}
+            value={numRounds}
+            onChange={this.onNumRoundsChange}
+          >
+            {rounds}
+          </select>
+        </div>
 
         <h3>{`Players (${playersInRoom.length} / ${maxPlayersPerRoom}):`}</h3>
 

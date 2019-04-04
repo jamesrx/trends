@@ -191,46 +191,45 @@ class LobbyScreen extends React.Component {
           )
           : <h3>No rooms currently open</h3>
         }
-        <div>
-          <h3>Start a room:</h3>
+        <h3>Start a room:</h3>
 
+        <p>
+          Name:
+          <input
+            type="text"
+            value={newRoomName}
+            onChange={this.onNewRoomNameChange}
+            onKeyDown={this.createRoomOnKeyPress}
+            ref={this.roomNameRef}
+          />
+        </p>
+
+        <p>
+          Password:
+          <input
+            type="password"
+            value={newRoomPassword}
+            onChange={this.onNewRoomPasswordChange}
+            onKeyDown={this.createRoomOnKeyPress}
+          />
+          (Optional)
+        </p>
+
+        <button
+          disabled={invalidRoomName || duplicateRoomName ? 'disabled' : ''}
+          type="button"
+          onClick={this.createRoom}
+        >
+          Create
+        </button>
+
+        {invalidRoomName && (
           <p>
-            Name:
-            <input
-              type="text"
-              value={newRoomName}
-              onChange={this.onNewRoomNameChange}
-              onKeyDown={this.createRoomOnKeyPress}
-              ref={this.roomNameRef}
-            />
+            {`Enter a room name between ${this.minRoomNameLength}-${this.maxRoomNameLength} characters`}
           </p>
+        )}
 
-          <p>
-            Password:
-            <input
-              type="password"
-              value={newRoomPassword}
-              onChange={this.onNewRoomPasswordChange}
-              onKeyDown={this.createRoomOnKeyPress}
-            />
-            (Optional)
-          </p>
-
-          <button
-            disabled={invalidRoomName || duplicateRoomName ? 'disabled' : ''}
-            type="button"
-            onClick={this.createRoom}
-          >
-            Create
-          </button>
-
-          {invalidRoomName && (
-            <div>
-              {`Enter a room name between ${this.minRoomNameLength}-${this.maxRoomNameLength} characters`}
-            </div>
-          )}
-          {duplicateRoomName && <div>That room name is already in use</div>}
-        </div>
+        {duplicateRoomName && <p>That room name is already in use</p>}
       </>
     );
   }

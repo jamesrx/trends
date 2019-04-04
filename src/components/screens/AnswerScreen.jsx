@@ -193,22 +193,23 @@ class AnswerScreen extends React.Component {
           {`Round: ${this.roundNum + 1} / ${state.rooms[state.roomName].numRounds}`}
         </h3>
 
-        {
-          <p>
-            {'Round ends in '}
-            <b>{timeLeft}</b>
-            {timeLeft === 1 ? ' second' : ' seconds'}
-          </p>
-        }
-
-        <p>Create a phrase by adding a word before or after the starting word!</p>
-        <p>Click on the space before or after the starting word and start typing</p>
         <p>
-          Tip: Your phrase doesn&apos;t have to be related to the topic &mdash;
-          it can be anything that would be popular in Google
+          {'Round ends in '}
+          <b>{timeLeft}</b>
+          {timeLeft === 1 ? ' second' : ' seconds'}
         </p>
 
+        <ul className="instructions">
+          <li>Create a phrase by adding a word before or after the starting word!</li>
+          <li>Click on the space before or after the starting word and start typing</li>
+          <li>
+            Tip: Your phrase doesn&apos;t have to be related to the topic &mdash;
+            it can be anything that would be popular in Google
+          </li>
+        </ul>
+
         <div>
+          <span>Your Search Term:</span>
           <AnswerField
             type="before"
             {...answerProps}
