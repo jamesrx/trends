@@ -22,21 +22,20 @@ class AnswerField extends React.Component {
   }
 
   resizeInput = () => {
-    // add one to account for offsetWidth using the floor value
-    this.ref.style.width = `${this.hideRef.current.offsetWidth + 1}px`;
+    this.ref.style.width = `${this.hideRef.current.offsetWidth + 2}px`; // plus 2px for extra space
   }
 
   validateAnswer = () => {
     const { value } = this.state;
     const {
-      updateValidFields,
+      updateInvalidAnswer,
       minLength,
       maxLength,
     } = this.props;
     const isValid = !(value.length < minLength || value.length > maxLength);
 
     this.setState({ isValid });
-    updateValidFields(isValid);
+    updateInvalidAnswer(isValid);
   }
 
   changeHandler = (event) => {
@@ -96,6 +95,8 @@ class AnswerField extends React.Component {
           name="terms"
           value={value}
           autoComplete="off"
+          autoCorrect="off"
+          spellCheck="false"
           disabled={disabled ? 'disabled' : ''}
           className={`${type} ${style.answerField} ${style.answerFieldText} ${isValid ? '' : 'invalid'}`}
           ref={(el) => { refs[type] = el; }} // eslint-disable-line no-param-reassign
@@ -110,7 +111,7 @@ class AnswerField extends React.Component {
 AnswerField.propTypes = {
   type: PropTypes.string.isRequired,
   refs: PropTypes.object.isRequired,
-  updateValidFields: PropTypes.func.isRequired,
+  updateInvalidAnswer: PropTypes.func.isRequired,
   disabled: PropTypes.bool,
   minLength: PropTypes.number,
   maxLength: PropTypes.number,

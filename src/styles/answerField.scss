@@ -1,9 +1,10 @@
 .answerField {
-  display: inline-block;
-  width: 10px;
-  min-width: 10px;
+  $startWidth: 25px;
+  width: $startWidth;
+  min-width: $startWidth;
   margin: 0 3px;
   padding: 0;
+  padding-left: 1px; // to center text without also centering the cursor
   border: none;
   outline: none;
   border-bottom: 1px solid black;

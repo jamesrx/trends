@@ -118,7 +118,7 @@ class AnswerScreen extends React.Component {
     this.sendAnswerData(term, fullTerm);
   }
 
-  updateValidFields = (isValid) => {
+  updateInvalidAnswer = (isValid) => {
     this.setState({
       invalidAnswer: !isValid,
     });
@@ -144,7 +144,7 @@ class AnswerScreen extends React.Component {
     const answerProps = {
       refs: this.termRefs,
       onFocus: this.toggleDisabledInput,
-      updateValidFields: this.updateValidFields,
+      updateInvalidAnswer: this.updateInvalidAnswer,
       minLength: this.minAnswerLength,
       maxLength: this.maxAnswerLength,
       disabled: submittedAnswer,

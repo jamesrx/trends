@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import screens from '../../screenTypes';
+import Result from '../Result';
 import BarChart from '../BarChart';
 import LineChart from '../LineChart';
 
@@ -57,13 +58,12 @@ class ResultScreen extends React.Component {
         </h3>
         <ul>
           {
-            Object.keys(lastRound).map(player => (
-              <li key={player}>
-                {`${player}: `}
-                {lastRound[player].fullTerm
-                  ? `answered ${lastRound[player].fullTerm}`
-                  : 'didn\'t answer in time'}
-                {` (${lastRound[player].points} points)`}
+            Object.keys(lastRound).map(playerName => (
+              <li key={playerName}>
+                <Result
+                  playerName={playerName}
+                  {...lastRound[playerName]}
+                />
               </li>
             ))
           }
@@ -83,6 +83,7 @@ class ResultScreen extends React.Component {
         <h3>
           {`Rounds left: ${state.rooms[state.roomName].numRounds - this.currentRound}`}
         </h3>
+
         {
           state.isLeader
             ? (
