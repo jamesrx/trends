@@ -62,19 +62,19 @@ class AnswerScreen extends React.Component {
       this.setState({ acceptedAnswer: true });
     });
 
-    // this.roundTimer = setInterval(() => {
-    //   const {
-    //     timeLeft,
-    //     acceptedAnswer,
-    //   } = this.state;
-    //   const newTimeLeft = timeLeft - 1;
+    this.roundTimer = setInterval(() => {
+      const {
+        timeLeft,
+        acceptedAnswer,
+      } = this.state;
+      const newTimeLeft = timeLeft - 1;
 
-    //   if (newTimeLeft) {
-    //     this.setState({ timeLeft: newTimeLeft });
-    //   } else if (!acceptedAnswer) {
-    //     this.sendAnswerData();
-    //   }
-    // }, 1000); // count down every second
+      if (newTimeLeft) {
+        this.setState({ timeLeft: newTimeLeft });
+      } else if (!acceptedAnswer) {
+        this.sendAnswerData();
+      }
+    }, 1000); // count down every second
   }
 
   componentWillUnmount = () => {
