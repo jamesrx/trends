@@ -91,6 +91,7 @@ class StartScreen extends React.Component {
               <span key={letter} className={style[letter]}>{letter}</span>
             ))}
           </div>
+          {/* <img className={style.arrow} src="https://cdn.glitch.com/a869af69-d4d6-4f73-b7cd-9a8c71fc3335%2Ftrends-arrow.png?1554345027487" alt="Arrow Logo" /> */}
           <img className={style.arrow} src="/src/trends-arrow.png" alt="Arrow Logo" />
         </div>
 
