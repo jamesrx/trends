@@ -61,7 +61,7 @@ class ResultScreen extends React.Component {
               <li key={player}>
                 {`${player}: `}
                 {lastRound[player].fullTerm
-                  ? `guessed ${lastRound[player].fullTerm}`
+                  ? `answered ${lastRound[player].fullTerm}`
                   : 'didn\'t answer in time'}
                 {` (${lastRound[player].points} points)`}
               </li>
