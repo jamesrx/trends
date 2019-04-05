@@ -18,6 +18,10 @@
        margin: 0.5em 0;
      }
   }
+
+  .invalid {
+    color: red;
+  }
 }
 
 .root {
@@ -30,7 +34,10 @@
   border: 1px solid #eaeaea;
   background: #fff;
   color: #464646;
-  font-family: Helvetica, sans-serif  
+
+  &, & * {
+    font-family: Helvetica, sans-serif;
+  }
 }
 
 .invalid {

@@ -1,10 +1,19 @@
 .answerField {
-  border-bottom: 1px solid black;
   display: inline-block;
+  width: 10px;
   min-width: 10px;
-  margin: 0px 3px;
+  margin: 0 3px;
+  padding: 0;
+  border: none;
+  outline: none;
+  border-bottom: 1px solid black;
+  background-image: none !important; // remove things like lastpass adding a bg img
+}
+
+.answerFieldText {
+  font-size: 16px;
 }
 
 .disabled {
-  color: grey;
+  opacity: .5;
 }

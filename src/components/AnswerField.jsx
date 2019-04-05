@@ -7,6 +7,7 @@ class AnswerField extends React.Component {
     super(props);
     this.state = {
       value: '',
+      isValid: false,
     };
     this.hideRef = React.createRef();
   }
@@ -21,14 +22,20 @@ class AnswerField extends React.Component {
   }
 
   resizeInput = () => {
-    this.ref.style.width = `${this.hideRef.current.offsetWidth}px`;
+    // add one to account for offsetWidth using the floor value
+    this.ref.style.width = `${this.hideRef.current.offsetWidth + 1}px`;
   }
 
   validateAnswer = () => {
     const { value } = this.state;
-    const isValid = value.length < 3 || value.length > 20;
-    const { updateValidFields } = this.props;
+    const {
+      updateValidFields,
+      minLength,
+      maxLength,
+    } = this.props;
+    const isValid = !(value.length < minLength || value.length > maxLength);
 
+    this.setState({ isValid });
     updateValidFields(isValid);
   }
 
@@ -65,6 +72,7 @@ class AnswerField extends React.Component {
     } = this.props;
     const {
       value,
+      isValid,
     } = this.state;
     const hideStyle = {
       position: 'absolute',
@@ -75,8 +83,10 @@ class AnswerField extends React.Component {
 
     return (
       <>
+        {/* hidden span as a way to scale the input field to the correct width */}
         <span
           style={hideStyle}
+          className={style.answerFieldText}
           ref={this.hideRef}
         >
           {value}
@@ -85,8 +95,9 @@ class AnswerField extends React.Component {
         <input
           name="terms"
           value={value}
+          autoComplete="off"
           disabled={disabled ? 'disabled' : ''}
-          className={`${type} ${style.answerField}`}
+          className={`${type} ${style.answerField} ${style.answerFieldText} ${isValid ? '' : 'invalid'}`}
           ref={(el) => { refs[type] = el; }} // eslint-disable-line no-param-reassign
           onChange={this.changeHandler}
           onFocus={this.toggleDisabledInput}
@@ -101,10 +112,14 @@ AnswerField.propTypes = {
   refs: PropTypes.object.isRequired,
   updateValidFields: PropTypes.func.isRequired,
   disabled: PropTypes.bool,
+  minLength: PropTypes.number,
+  maxLength: PropTypes.number,
 };
 
 AnswerField.defaultProps = {
   disabled: false,
+  minLength: 0,
+  maxLength: Number.MAX_SAFE_INTEGER,
 };
 
 export default AnswerField;

@@ -197,6 +197,7 @@ class LobbyScreen extends React.Component {
           Name:
           <input
             type="text"
+            className={invalidRoomName || duplicateRoomName ? 'invalid' : null}
             value={newRoomName}
             onChange={this.onNewRoomNameChange}
             onKeyDown={this.createRoomOnKeyPress}

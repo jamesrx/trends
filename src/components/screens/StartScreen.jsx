@@ -113,7 +113,7 @@ class StartScreen extends React.Component {
           Enter your name:
           <input
             type="text"
-            className={invalidUsername ? style.invalid : null}
+            className={invalidUsername ? 'invalid' : null}
             value={username}
             onChange={this.onUsernameChange}
             onKeyDown={this.submitUsernameOnKeyPress}
